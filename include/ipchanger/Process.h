@@ -7,6 +7,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <type_traits>
 
 #ifdef _WIN32
 
@@ -166,9 +167,17 @@ public:
     template <class T>
     void PrintMemory(unsigned int addr, unsigned int size)
     {
-        std::vector<char> buff(size);
-        ReadFromAddress(addr, buff.data(), size);
-        std::cout << reinterpret_cast<T>(buff.data()) << std::endl;
+        std::vector<T> buff(size / sizeof(T));
+        ReadFromAddress(addr, reinterpret_cast<char*>(buff.data()), size);
+
+        std::stringstream out;
+
+        for(T t : buff)
+            out << t;
+        out << std::endl;
+
+        std::cout << out.str();
+
     }
 
 };

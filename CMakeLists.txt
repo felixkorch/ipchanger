@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 project(IPChanger)
 
 find_package(Boost COMPONENTS system REQUIRED)
+find_package(Threads REQUIRED)
 
 set(IPCHANGER_LIBRARY_DIR "${CMAKE_SOURCE_DIR}/lib")
 set(IPCHANGER_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")

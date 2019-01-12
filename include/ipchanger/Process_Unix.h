@@ -88,6 +88,8 @@ public:
         return buff;
     }
 
+};
+
 } // end ipchanger namespace
 
 #endif // UNIXPROCESS_HPP

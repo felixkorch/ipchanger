@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_AUTOMOC ON)
 # Create code from a list of Qt designer ui files
 set(CMAKE_AUTOUIC ON)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 find_package(Qt5Widgets CONFIG REQUIRED)
 
@@ -24,4 +25,5 @@ target_link_libraries(${PROJECT_NAME}
 	Qt5::Widgets
 	${Boost_FILESYSTEM_LIBRARY}
         ${Boost_SYSTEM_LIBRARY}
+        Threads::Threads
         )
