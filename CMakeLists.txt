@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.8.1)
 set(CMAKE_CXX_STANDARD 17)
 
 project(IPChanger)
 
-find_package(Boost COMPONENTS system filesystem REQUIRED)
+find_package(Boost COMPONENTS system REQUIRED)
 
 set(IPCHANGER_LIBRARY_DIR "${CMAKE_SOURCE_DIR}/lib")
 set(IPCHANGER_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
@@ -13,4 +13,3 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 include_directories(${IPCHANGER_INCLUDE_DIR})
 
 add_subdirectory(gui)
-add_subdirectory(console)
