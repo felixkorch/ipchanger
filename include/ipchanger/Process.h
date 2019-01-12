@@ -163,12 +163,14 @@ public:
         return addresses;
     }
 
-    void PrintMemory(unsigned int addr, unsigned int size) // Print memory as a string
+    template <class T>
+    void PrintMemory(unsigned int addr, unsigned int size)
     {
         std::vector<char> buff(size);
         ReadFromAddress(addr, buff.data(), size);
-        std::cout << buff.data() << std::endl;
+        std::cout << reinterpret_cast<T>(buff.data()) << std::endl;
     }
+
 };
 
 } // end ipchanger::system
