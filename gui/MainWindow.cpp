@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Window setup
     connect(ui->pushButton, SIGNAL (released()), this, SLOT (ChangeIP()));
     this->setFixedSize(QSize(354, 376));
+    this->statusBar()->setSizeGripEnabled(false);
 
 
     // Initialize widgets

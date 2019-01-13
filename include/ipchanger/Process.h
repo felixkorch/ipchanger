@@ -7,7 +7,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#include <type_traits>
+#include <sstream>
 
 #ifdef _WIN32
 
@@ -28,9 +28,9 @@ private:
     std::deque<char> _queue;
     std::string _pattern;
     bool _done;
-    unsigned int _match_count;
-    unsigned int _bytes_read;
-    std::vector<unsigned int> _matches;
+    std::size_t _bytes_read;
+    std::vector<std::uintptr_t> _matches;
+    std::function<void(std::uintptr_t)> _callback;
 
     std::condition_variable cv;
     std::mutex cv_m;
@@ -38,17 +38,19 @@ public:
     static constexpr std::size_t MAX_SIZE = 10000; // 10.000 bytes
 
 public:
-    StreamMatcher(const std::string& pattern)
-        : _queue(0), _pattern(pattern), _done(false), _match_count(0), _bytes_read(0), _matches(0)
+    StreamMatcher(const std::string& pattern, std::function<void(std::uintptr_t)> callback = nullptr)
+        : _queue(0), _pattern(pattern), _done(false), _bytes_read(0), _matches(0), _callback(callback)
     {}
 
     int AddToQueue(const std::vector<char> data)
     {
+        std::unique_lock<std::mutex> lk(cv_m);
+
         if (data.size() > (MAX_SIZE - _queue.size()))
             return 0;
 
         _queue.insert(std::end(_queue), std::begin(data), std::end(data));
-        std::lock_guard<std::mutex> lk(cv_m);
+        lk.unlock();
         cv.notify_one();
         return 1;
     }
@@ -59,44 +61,48 @@ public:
         return std::thread(&StreamMatcher::Worker, this);
     }
 
-    unsigned int NumberOfMatches()
+    std::size_t NumberOfMatches()
     {
-        return _match_count;
+        return _matches.size();
     }
 
-    unsigned int BytesRead()
+    std::size_t BytesRead()
     {
         return _bytes_read;
     }
 
-    std::vector<unsigned int> Matches()
+    std::vector<std::uintptr_t> Matches()
     {
         return _matches;
     }
 
     void Worker()
     {
-        std::unique_lock<std::mutex> lk(cv_m);
         unsigned int position = 0;
-        unsigned int first_letter = 0;
+        std::uintptr_t first_letter = 0;
         char current_char;
 
         while (!_done || !_queue.empty()) {
+
+            std::unique_lock<std::mutex> lk(cv_m);
+
             if (_queue.empty()) { // While queue is empty, wait for signal from handler
                 cv.wait(lk);
                 continue;
             }
 
             current_char = _pattern[position];
-            if(_queue.front() == 0) first_letter = _bytes_read + 1;
+            if(_queue.front() == 0)
+                first_letter = _bytes_read + 1;
 
             if (current_char == _queue.front()) {
                 if (position == _pattern.length() - 1) { // Actual length of string
-                    _match_count++;
                     _matches.push_back(first_letter);
+                    if(_callback) _callback(first_letter);
                     position = 0;
+                }else{
+                    position++;
                 }
-                position++;
             }
             else {
                 position = 0;
@@ -104,6 +110,8 @@ public:
 
             _queue.pop_front();
             _bytes_read++;
+
+            lk.unlock();
         }
         std::cout << "Matcher done" << std::endl;
     }
@@ -127,22 +135,24 @@ public:
     Process(int pid)
         : ProcessBase(pid) {}
 
-    std::vector<unsigned int> SearchMemoryString
-        (const std::string& pattern, unsigned int start, unsigned int stop)
+    std::vector<std::uintptr_t> SearchMemoryString
+        (const std::string& pattern, std::uintptr_t start,
+         std::uintptr_t stop,
+         std::function<void(std::uintptr_t)> cb = nullptr)
     {
-        const unsigned int chunk = StreamMatcher::MAX_SIZE;
-        const unsigned int count = stop - start + 1; // Number of addresses to read
+        std::size_t chunk = StreamMatcher::MAX_SIZE / 2;
+        std::size_t count = stop - start + 1; // Number of addresses to read
 
-        StreamMatcher sm(pattern);
+        StreamMatcher sm(pattern, cb);
         auto worker = sm.Start();
 
         using clock = std::chrono::system_clock;
         using ms = std::chrono::milliseconds;
         const auto before = clock::now(); // Measure time
 
-        for (unsigned int i = start; i < stop;) {
+        for (std::size_t i = start; i < stop;) {
 
-            unsigned int size = chunk;
+            std::size_t size = chunk;
             if(chunk > count) size = count;
 
             std::vector<char> buff(size);
@@ -152,20 +162,17 @@ public:
             i += size;
         }
 
-        sm.Stop();
+        sm.Stop(); // End matcher process
         worker.join();
 
         const auto duration = std::chrono::duration_cast<ms>(clock::now() - before);
         std::cout << "Time elapsed: " << duration.count() / 1000.0f << " seconds." << std::endl;
 
-        std::vector<unsigned int> addresses;
-        for(auto m : sm.Matches()) // Matcher returns offset from the start address therefore m + start
-            addresses.push_back(m + start);
-        return addresses;
+        return sm.Matches();
     }
 
     template <class T>
-    void PrintMemory(unsigned int addr, unsigned int size)
+    void PrintMemory(std::uintptr_t addr, std::size_t size)
     {
         std::vector<T> buff(size / sizeof(T));
         ReadFromAddress(addr, reinterpret_cast<char*>(buff.data()), size);
@@ -177,9 +184,7 @@ public:
         out << std::endl;
 
         std::cout << out.str();
-
     }
-
 };
 
 } // end ipchanger::system

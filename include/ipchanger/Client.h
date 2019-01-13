@@ -9,10 +9,10 @@ namespace ipchanger {
 struct Client
 {
         const unsigned int version; // Tibia version
-        const unsigned int write_address; // Start address
+        const std::uintptr_t write_address; // Start address
         const unsigned int step;
         const unsigned int port_offset;
-        const unsigned int rsa_address;
+        const std::uintptr_t rsa_address;
         const unsigned int count;
 };
 

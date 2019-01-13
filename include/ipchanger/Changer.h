@@ -22,7 +22,7 @@ inline int ChangeIP(const std::string& ip, unsigned int port, unsigned int versi
 	if (!proc.Attach())
 		return 2; // Administration rights required
 
-	unsigned int addr = client->rsa_address; // Holder for write address
+    auto addr = client->rsa_address; // Holder for write address
 	if (!proc.WriteToAddress(addr, RSA_KEY, std::strlen(RSA_KEY) + 1))
 		return 3; // Could not write RSA Key
 

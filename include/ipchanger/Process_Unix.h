@@ -63,26 +63,26 @@ public:
         return 1;
     }
 
-    int WriteToAddress(unsigned int addr, const char* buff, unsigned int length) const
+    int WriteToAddress(std::uintptr_t addr, const char* buff, std::size_t length) const
     {
-        for (unsigned int i = 0; i < length; i++) {
+        for (std::size_t i = 0; i < length; i++) {
             ptrace(PTRACE_POKEDATA, _pid, addr + i, buff[i]);
         }
         return 1;
     }
 
-    int ReadFromAddress(unsigned int addr, char* buff, unsigned int length) const
+    int ReadFromAddress(std::uintptr_t addr, char* buff, std::size_t length) const
     {
-        for (unsigned int i = 0; i < length; i++) {
+        for (std::size_t i = 0; i < length; i++) {
             buff[i] = ptrace(PTRACE_PEEKDATA, _pid, addr + i, 0);
         }
         return 1;
     }
 
-    std::vector<char> ReadFromAddress(unsigned int addr, unsigned int length) const
+    std::vector<char> ReadFromAddress(std::uintptr_t addr, std::size_t length) const
     {
         std::vector<char> buff(length);
-        for (unsigned int i = 0; i < length; i++) {
+        for (std::size_t i = 0; i < length; i++) {
             buff[i] = ptrace(PTRACE_PEEKDATA, _pid, addr + i, 0);
         }
         return buff;

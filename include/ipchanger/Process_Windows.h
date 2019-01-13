@@ -15,7 +15,7 @@ private:
 	int _pid;
 public:
     ProcessBase(int pid)
-        : _pid(pid), _handle(nullptr)
+        : _handle(nullptr), _pid(pid)
     {}
 
     ProcessBase(const std::string& process_name)
@@ -80,7 +80,7 @@ public:
         return 1;
     }
 
-    int WriteToAddress(unsigned int addr, const char* buff, unsigned int length) const
+    int WriteToAddress(std::uintptr_t addr, const char* buff, std::size_t length) const
     {
         if (!_handle) {
             std::cout << "Proccess must be attached." << std::endl;
@@ -88,22 +88,22 @@ public:
         }
 
         SIZE_T written_bytes;
-        WriteProcessMemory(_handle, (LPVOID)addr, buff, length, &written_bytes);
+        WriteProcessMemory(_handle, reinterpret_cast<void*>(addr), buff, length, &written_bytes);
         return 1;
     }
 
-    int ReadFromAddress(unsigned int addr, char* buff, unsigned int length) const
+    int ReadFromAddress(std::uintptr_t addr, char* buff, std::size_t length) const
     {
         if (!_handle) {
             std::cout << "Proccess must be attached." << std::endl;
             return 0;
         }
         SIZE_T read_bytes;
-        ReadProcessMemory(_handle, (LPCVOID)addr, buff, length, &read_bytes);
+        ReadProcessMemory(_handle, reinterpret_cast<const void*>(addr), buff, length, &read_bytes);
         return 1;
     }
 
-    std::vector<char> ReadFromAddress(unsigned int addr, unsigned int length) const
+    std::vector<char> ReadFromAddress(std::uintptr_t addr, std::size_t length) const
     {
         if (!_handle) {
             std::cout << "Proccess must be attached." << std::endl;
@@ -112,7 +112,7 @@ public:
 
         std::vector<char> buff(length);
         SIZE_T read_bytes;
-        ReadProcessMemory(_handle, (LPCVOID)addr, buff.data(), length, &read_bytes);
+        ReadProcessMemory(_handle, reinterpret_cast<const void*>(addr), buff.data(), length, &read_bytes);
         return buff;
     }
 
