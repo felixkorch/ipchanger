@@ -11,5 +11,5 @@ make
 ```
 
 ### Required libraries
-Qt5Widgets
+Qt5Widgets<br />
 Boost (Boost system)
