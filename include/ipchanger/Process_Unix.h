@@ -63,7 +63,8 @@ public:
         return 1;
     }
 
-    int WriteToAddress(std::uintptr_t addr, const char* buff, std::size_t length) const
+    template <class T>
+    int WriteToAddress(std::uintptr_t addr, const T* buff, std::size_t length) const
     {
         for (std::size_t i = 0; i < length; i++) {
             ptrace(PTRACE_POKEDATA, _pid, addr + i, buff[i]);
@@ -71,7 +72,8 @@ public:
         return 1;
     }
 
-    int ReadFromAddress(std::uintptr_t addr, char* buff, std::size_t length) const
+    template <class T>
+    int ReadFromAddress(std::uintptr_t addr, T* buff, std::size_t length) const
     {
         for (std::size_t i = 0; i < length; i++) {
             buff[i] = ptrace(PTRACE_PEEKDATA, _pid, addr + i, 0);
@@ -79,9 +81,10 @@ public:
         return 1;
     }
 
-    std::vector<char> ReadFromAddress(std::uintptr_t addr, std::size_t length) const
+    template <class T>
+    std::vector<T> ReadFromAddress(std::uintptr_t addr, std::size_t length) const
     {
-        std::vector<char> buff(length);
+        std::vector<T> buff(length);
         for (std::size_t i = 0; i < length; i++) {
             buff[i] = ptrace(PTRACE_PEEKDATA, _pid, addr + i, 0);
         }

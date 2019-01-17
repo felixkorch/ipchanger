@@ -22,8 +22,7 @@ set(APP_SRCS
 
 add_executable(${PROJECT_NAME} ${APP_SRCS})
 target_link_libraries(${PROJECT_NAME}
-	Qt5::Widgets
-	${Boost_FILESYSTEM_LIBRARY}
-        ${Boost_SYSTEM_LIBRARY}
-        Threads::Threads
-        )
+    Qt5::Widgets
+    ${Boost_SYSTEM_LIBRARY}
+    Threads::Threads
+)

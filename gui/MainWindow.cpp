@@ -39,8 +39,8 @@ void MainWindow::ChangeIP()
         return;
     }
 
-    const std::string ip = ui->lineEdit_2->text().toStdString();
-    const unsigned int port = ui->lineEdit_3->text().toUInt();
+    const std::string ip = ui->lineEdit_3->text().toStdString();
+    const unsigned int port = ui->lineEdit_2->text().toUInt();
     const unsigned int version = ui->comboBox->currentText().toUInt();
 
     namespace ch = ipchanger::changer;
