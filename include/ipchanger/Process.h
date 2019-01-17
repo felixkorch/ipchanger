@@ -32,7 +32,7 @@ private:
     std::size_t _bytes_read;
     std::vector<std::uintptr_t> _offsets_word; // Offset to first non-zero byte before the sequence
     std::vector<std::uintptr_t> _offsets_match; // Offset to match
-    std::function<void(std::uintptr_t)> _callback;
+    std::function<void(std::uintptr_t, std::uintptr_t)> _callback;
     std::vector<T> _pattern;
     std::thread _worker;
 
@@ -40,7 +40,7 @@ private:
     std::mutex cv_m;
 
 public:
-    StreamMatcher(const std::vector<T> pattern, std::function<void(std::uintptr_t)> callback = nullptr)
+    StreamMatcher(const std::vector<T> pattern, std::function<void(std::uintptr_t, std::uintptr_t)> callback = nullptr)
         : _done(false), _bytes_read(0), _callback(callback), _pattern(pattern), _worker(&StreamMatcher::Worker, this, _pattern)
     {
         std::cout << "Matcher started!" << std::endl;
@@ -104,7 +104,7 @@ public:
             if(position == pattern.size()) {
                 _offsets_word.push_back(next_word);
                 _offsets_match.push_back(_bytes_read - 1);
-                if(_callback) _callback(next_word);
+                if(_callback) _callback(_bytes_read - 1, next_word);
                 position = 0;
             }
 
@@ -138,7 +138,7 @@ public:
     StreamMatcher<T>* SearchMemory
         (const std::vector<T> pattern, std::uintptr_t start,
          std::uintptr_t stop,
-         std::function<void(std::uintptr_t adr)> cb = nullptr)
+         std::function<void(std::uintptr_t match, std::uintptr_t word)> cb = nullptr)
     {
         std::size_t chunk = 10000;
         std::size_t count = stop - start + 1; // Number of addresses to read

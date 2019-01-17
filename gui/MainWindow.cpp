@@ -26,8 +26,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::ChangeIP()
 {
+    const std::string ip = ui->lineEdit_3->text().toStdString();
+    const unsigned int port = ui->lineEdit_2->text().toUInt();
+    const unsigned int version = ui->comboBox->currentText().toUInt();
 
-    constexpr auto success_message = "IP successfully changed!\nPort: 7171\nVersion: 860";
+    const std::string success_message = "IP successfully changed!\nPort: " + std::to_string(port) + "\nVersion: " + std::to_string(version);
     auto failed_message = "";
     QMessageBox msgBox;
     msgBox.setWindowTitle("Tibia IP-Changer");
@@ -38,10 +41,6 @@ void MainWindow::ChangeIP()
         msgBox.exec();
         return;
     }
-
-    const std::string ip = ui->lineEdit_3->text().toStdString();
-    const unsigned int port = ui->lineEdit_2->text().toUInt();
-    const unsigned int version = ui->comboBox->currentText().toUInt();
 
     namespace ch = ipchanger::changer;
     int result = ch::ChangeIP(ip, port, version);
@@ -57,7 +56,7 @@ void MainWindow::ChangeIP()
 
     if(result == 6) {
         msgBox.setIcon(QMessageBox::Information);
-        msgBox.setText(success_message);
+        msgBox.setText(success_message.c_str());
     }
     else {
         msgBox.setIcon(QMessageBox::Warning);
