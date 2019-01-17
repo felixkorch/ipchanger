@@ -23,25 +23,55 @@
 
 namespace ipchanger::system {
 
+
+struct AsciiNum {
+    char c;
+
+    AsciiNum()
+        : c('0') {}
+
+    AsciiNum(char c)
+        : c(c) {}
+
+    bool operator== (AsciiNum&& other)
+    {
+        if(c == 0 && other.c == 0)
+            return true;
+
+        if(other.c >= 48 && other.c <= 57)
+            return true;
+        return false;
+    }
+
+    bool operator== (AsciiNum& other)
+    {
+        if(c == 0 && other.c == 0)
+            return true;
+
+        if(other.c >= 48 && other.c <= 57)
+            return true;
+        return false;
+    }
+};
+
 template <class T>
 class StreamMatcher { // Class to match for strings while reading memory continously  
 
 private:
+    std::condition_variable cv;
+    std::mutex cv_m;
+
     std::deque<T> _queue;
     bool _done;
     std::size_t _bytes_read;
     std::vector<std::uintptr_t> _offsets_word; // Offset to first non-zero byte before the sequence
     std::vector<std::uintptr_t> _offsets_match; // Offset to match
     std::function<void(std::uintptr_t, std::uintptr_t)> _callback;
-    std::vector<T> _pattern;
     std::thread _worker;
-
-    std::condition_variable cv;
-    std::mutex cv_m;
 
 public:
     StreamMatcher(const std::vector<T> pattern, std::function<void(std::uintptr_t, std::uintptr_t)> callback = nullptr)
-        : _done(false), _bytes_read(0), _callback(callback), _pattern(pattern), _worker(&StreamMatcher::Worker, this, _pattern)
+        : _done(false), _bytes_read(0), _callback(callback), _worker(&StreamMatcher::Worker, this, pattern)
     {
         std::cout << "Matcher started!" << std::endl;
     }
@@ -54,6 +84,7 @@ public:
             std::lock_guard<std::mutex> lk(cv_m);
             _queue.insert(_queue.end(), data.begin(), data.end());
         }
+
         cv.notify_one();
     }
 
@@ -79,7 +110,7 @@ public:
 
     void Worker(const std::vector<T> pattern)
     {
-        unsigned int next_word = 0;
+        std::size_t next_word = 0;
         unsigned int position = 0;
 
         while(!_done || !_queue.empty()) {
@@ -96,7 +127,7 @@ public:
             if(front == 0)
                 next_word = _bytes_read;
 
-            if(front == current)
+            if(current == front)
                 position++;
             else
                 position = 0;
@@ -153,7 +184,8 @@ public:
 
             std::size_t size = chunk;
             if(chunk > count) size = count;
-            auto buff = ReadFromAddress<T>(i, size);
+
+            std::vector<T> buff = ReadFromAddress<T>(i, size);
             sm->AddToQueue(buff);
 
             i += size;

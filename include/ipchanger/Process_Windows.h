@@ -80,7 +80,8 @@ public:
         return 1;
     }
 
-    int WriteToAddress(std::uintptr_t addr, const char* buff, std::size_t length) const
+    template <class T>
+    int WriteToAddress(std::uintptr_t addr, const T* buff, std::size_t length) const
     {
         if (!_handle) {
             std::cout << "Proccess must be attached." << std::endl;
@@ -92,27 +93,29 @@ public:
         return 1;
     }
 
-    int ReadFromAddress(std::uintptr_t addr, char* buff, std::size_t length) const
+    template <class T>
+    int ReadFromAddress(std::uintptr_t addr, T* buff, std::size_t length) const
     {
         if (!_handle) {
             std::cout << "Proccess must be attached." << std::endl;
             return 0;
         }
         SIZE_T read_bytes;
-        ReadProcessMemory(_handle, reinterpret_cast<const void*>(addr), buff, length, &read_bytes);
+        ReadProcessMemory(_handle, reinterpret_cast<const void*>(addr), reinterpret_cast<void*>(buff), length, &read_bytes);
         return 1;
     }
 
-    std::vector<char> ReadFromAddress(std::uintptr_t addr, std::size_t length) const
+    template <class T>
+    std::vector<T> ReadFromAddress(std::uintptr_t addr, std::size_t length) const
     {
         if (!_handle) {
             std::cout << "Proccess must be attached." << std::endl;
-            return std::vector<char>(length, 0);
+            return std::vector<T>(length, 0);
         }
 
-        std::vector<char> buff(length);
+        std::vector<T> buff(length);
         SIZE_T read_bytes;
-        ReadProcessMemory(_handle, reinterpret_cast<const void*>(addr), buff.data(), length, &read_bytes);
+        ReadProcessMemory(_handle, reinterpret_cast<const void*>(addr), reinterpret_cast<void*>(buff.data()), length, &read_bytes);
         return buff;
     }
 
