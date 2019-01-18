@@ -78,8 +78,6 @@ public:
 
     void AddToQueue(const std::vector<T> data)
     {
-        //while(_queue.size() > 10000)
-        //    ;
         {
             std::lock_guard<std::mutex> lk(cv_m);
             _queue.insert(_queue.end(), data.begin(), data.end());

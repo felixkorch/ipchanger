@@ -25,6 +25,7 @@ public:
 
     ~ProcessBase()
     {
+        std::cout << "Detaching!" << std::endl;
         Detach();
     }
 
