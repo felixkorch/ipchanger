@@ -1,6 +1,6 @@
 # Tibia IP-Changer
 
-Easy to use cross-platform ipchanger for Open Tibia with both GUI and Console interfaces. Currently supports linux only
+Easy to use cross-platform ipchanger for Open Tibia with both GUI and Console interfaces.
 
 ### Build Instructions
 In root directory:
@@ -15,4 +15,5 @@ Qt5Widgets<br />
 ```
 sudo apt-get install qtbase5-dev
 ```
-Boost (Boost system)
+Boost (boost_system)
+Boost (boost_filesystem)
