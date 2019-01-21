@@ -15,6 +15,5 @@ Qt5Widgets<br />
 ```
 sudo apt-get install qtbase5-dev
 ```
-Boost<br />
-boost_system<br />
-boost_filesystem
+Boost System<br />
+>oost Filesystem
