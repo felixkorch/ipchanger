@@ -12,8 +12,9 @@ make
 
 ### Required libraries
 Qt5Widgets<br />
-```
-sudo apt-get install qtbase5-dev
-```
 Boost System<br />
 Boost Filesystem
+
+```
+sudo apt-get install qtbase5-dev libboost-system-dev libboost-filesystem-dev
+```
