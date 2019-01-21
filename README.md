@@ -15,5 +15,5 @@ Qt5Widgets<br />
 ```
 sudo apt-get install qtbase5-dev
 ```
-Boost (boost_system)
+Boost (boost_system) <br />
 Boost (boost_filesystem)
