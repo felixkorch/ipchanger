@@ -121,6 +121,6 @@ public:
 
 };
 
-} // end ipchanger::system
+} // namespace
 
 #endif // WINDOWSPROCESS_HPP

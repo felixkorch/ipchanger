@@ -16,6 +16,7 @@ public:
     ~MainWindow();
 private slots:
     void ChangeIP();
+    void Browse();
 
 private:
     Ui::MainWindow *ui;

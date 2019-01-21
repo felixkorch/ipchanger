@@ -2,7 +2,6 @@
 #define UNIXPROCESS_HPP
 
 #include "ipchanger/Client.h"
-#include "boost/process.hpp"
 #include <sys/ptrace.h>
 #include <sys/wait.h>
 #include <sys/types.h>
@@ -25,7 +24,6 @@ public:
 
     ~ProcessBase()
     {
-        std::cout << "Detaching!" << std::endl;
         Detach();
     }
 
@@ -36,17 +34,15 @@ public:
 
     int FindPid(const std::string& process_name) const
     {
-        namespace bp = boost::process;
-        bp::ipstream command_output;
-        int run_command = !bp::system("pgrep " + process_name, bp::std_out > command_output);
+        std::string command = "pgrep " + process_name;
+        char buf[20];
 
-        std::vector<std::string> data;
-        std::string line;
+        FILE *stream = popen(command.c_str(), "r");
+        fgets(buf, 20, stream);
+        int pid = std::atoi(buf);
+        pclose(stream);
 
-        while (std::getline(command_output, line) && !line.empty())
-            data.push_back(line);
-
-        return data.size() > 0 ? std::stoi(data[0]) : 0;
+        return pid;
     }
 
     int Attach() const // Tries to attach to a process, usually requires root
@@ -94,6 +90,6 @@ public:
 
 };
 
-} // end ipchanger namespace
+} // namespace
 
 #endif // UNIXPROCESS_HPP
