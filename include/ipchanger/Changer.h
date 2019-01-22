@@ -34,7 +34,7 @@ inline void ChangeIP(const std::string& ip, unsigned int port, const std::string
     if(!fs::exists(fs_path) || !fs::exists(tibia_path))
         return;
 
-    auto buff = ReadFile(tibia_path);
+    auto buff = system::ReadFile(tibia_path);
 
     const std::string p1 = "login0"; // login0x.tibia.com
     const std::string p2 = "cipsoft."; // tibia0x.cipsoft.com
@@ -53,6 +53,7 @@ inline void ChangeIP(const std::string& ip, unsigned int port, const std::string
 
     const std::string rsa1 = "1321277432058722840622950990822933849527763264961655079678763";
     const std::string rsa2 = "124710459426827943004376449897985582167801707960697037164044904"; // TODO: Fix Regex search
+
     auto sear3 = std::search(buff.begin(), buff.end(), std::boyer_moore_searcher(rsa1.begin(), rsa1.end()));
     if(sear3 != buff.end()) { // First try to find this RSA
         std::copy(std::begin(RSA_KEY), std::end(RSA_KEY), sear3);
@@ -62,7 +63,7 @@ inline void ChangeIP(const std::string& ip, unsigned int port, const std::string
             std::copy(std::begin(RSA_KEY), std::end(RSA_KEY), s);
     }
 
-    WriteFile(full_path, buff);
+    system::WriteFile(full_path, buff);
     fs::permissions(full_path, fs::owner_all); // Allow all permissions to be able to execute it
     fs::current_path(fs_path); // Change the directory Tibia directory
     boost::process::system(full_path); // Execute the temporary file
