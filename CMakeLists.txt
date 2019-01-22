@@ -7,6 +7,4 @@ set(IPCHANGER_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
 set(IPCHANGER_BINARY_DIR "${CMAKE_SOURCE_DIR}/bin")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-include_directories(${IPCHANGER_INCLUDE_DIR})
-
 add_subdirectory(gui)

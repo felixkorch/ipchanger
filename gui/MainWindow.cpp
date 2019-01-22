@@ -3,6 +3,7 @@
 #include "ui_MainWindow.h"
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QDir>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -33,10 +34,11 @@ void MainWindow::ChangeIP()
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.setText("Please fill in all fields.");
         msgBox.exec();
+        return;
     }
 
-    const std::string ip = ui->lineEdit_3->text().toStdString();
     const unsigned int port = ui->lineEdit_2->text().toUInt();
+    const std::string ip = ui->lineEdit_3->text().toStdString() + '\0'; // The string isn't null terminated for some reason.
     const std::string path = ui->lineEdit->text().toStdString();
 
     ipchanger::changer::ChangeIP(ip, port, path);

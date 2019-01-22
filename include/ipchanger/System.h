@@ -8,7 +8,7 @@
 #include <sstream>
 #include <vector>
 #include <functional>
-#include "boost/filesystem.hpp"
+#include <boost/filesystem.hpp>
 #include <iostream>
 
 namespace ipchanger::system {
@@ -19,7 +19,7 @@ enum class OS { Linux, Mac, Windows };
 constexpr OS current_os = OS::Linux;
 #elif __APPLE__
 constexpr OS current_os = OS::Mac;
-#elif __WIN32
+#elif _WIN32
 constexpr OS current_os = OS::Windows;
 #endif
 
