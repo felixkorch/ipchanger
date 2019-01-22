@@ -1,6 +1,7 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+#include <boost/filesystem.hpp>
 #include <deque>
 #include <thread>
 #include <mutex>
@@ -8,7 +9,6 @@
 #include <sstream>
 #include <vector>
 #include <functional>
-#include <boost/filesystem.hpp>
 #include <iostream>
 
 namespace ipchanger::system {
@@ -22,6 +22,27 @@ constexpr OS current_os = OS::Mac;
 #elif _WIN32
 constexpr OS current_os = OS::Windows;
 #endif
+
+namespace fs = boost::filesystem;
+
+std::vector<char> ReadFile(const fs::path& path)
+{
+    fs::ifstream tibia_binary(path, std::ios::binary); // Create a FILE-pointer to the binary
+    tibia_binary.seekg(0, fs::ifstream::end); // Seek to the end of the file
+    std::size_t size = tibia_binary.tellg();  // Read the file size
+    tibia_binary.seekg(0, fs::ifstream::beg); // Seek to the beginning of the file
+    std::vector<char> buff(size);
+    tibia_binary.read(buff.data(), size);     // Write the contents to "buff"
+    tibia_binary.close();
+    return buff;
+}
+
+void WriteFile(const fs::path& path, const std::vector<char>& buff)
+{
+    fs::ofstream output(path, std::ios::binary);
+    output.write(buff.data(), buff.size());
+    output.close();
+}
 
 struct AsciiNum {
     char c;
