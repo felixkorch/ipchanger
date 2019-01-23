@@ -23,6 +23,12 @@ const std::string RSA_KEY =
 namespace fs = boost::filesystem;
 inline void ChangeIP(const std::string& ip, unsigned int port, const fs::path& in, const fs::path& out)
 {
+    /*
+        using clock = std::chrono::system_clock;
+        using ms = std::chrono::milliseconds;
+        const auto before = clock::now(); // Measure time
+    */
+
     auto buff = system::ReadFileString(in);
 
     const std::string p1 = "login0"; // login0x.tibia.com
@@ -40,19 +46,37 @@ inline void ChangeIP(const std::string& ip, unsigned int port, const fs::path& i
         search = std::search(search, buff.end(), std::boyer_moore_searcher(p2.begin(), p2.end()));
     }
 
-    std::regex rsa_regex("[0-9]{300}");
-    std::smatch sm;
-    if(std::regex_search(buff, sm, rsa_regex))
-        std::copy(std::begin(RSA_KEY), std::end(RSA_KEY), &buff[sm.position()]);
+    const std::string rsa1 = "1321277432058722840622950990822933849527763264961655079678763"; // First try to find this RSA
+    const std::string rsa2 = "124710459426827943004376449897985582167801707960697037164044904"; // Fallback RSA (pre 8.61)
+
+    search = std::search(buff.begin(), buff.end(), std::boyer_moore_searcher(rsa1.begin(), rsa1.end()));
+
+    if(search != buff.end()) {
+        std::copy(std::begin(RSA_KEY), std::end(RSA_KEY), search);
+    }
+    else {
+        search = std::search(buff.begin(), buff.end(), std::boyer_moore_searcher(rsa2.begin(), rsa2.end()));
+        if(search != buff.end())
+            std::copy(std::begin(RSA_KEY), std::end(RSA_KEY), search);
+    }
 
     system::WriteFileString(out, buff);
     fs::permissions(out, fs::owner_all); // Allow all permissions to be able to execute it
+
+    /*
+        const auto duration = std::chrono::duration_cast<ms>(clock::now() - before);
+        std::cout << "Duration : " << duration.count() / 1000.0f << std::endl;
+    */
 }
 
 void LaunchTemporary(const fs::path& path)
 {
     if(!fs::exists(path))
         return;
+
+#ifdef _WIN32
+    SetFileAttributes((LPCSTR)path.string().c_str(), FILE_ATTRIBUTE_HIDDEN); // Hide the file on Windows
+#endif
     fs::current_path(path.parent_path()); // Change to the Tibia directory
     boost::process::system(path);         // Execute the temporary file
     fs::remove(path);

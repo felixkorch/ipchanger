@@ -37,16 +37,11 @@ static void uninitialise (void)
 std::optional<std::string> Resolve(const std::string& hostname)
 {
     struct hostent* he;
-
     initialise();
-
     he = gethostbyname(hostname.c_str());
-
     uninitialise();
-
     const char* adr = inet_ntoa(*((struct in_addr*) he->h_addr_list[0]));
     auto ip = std::make_optional(std::string(adr));
-
     return ip;
 }
 

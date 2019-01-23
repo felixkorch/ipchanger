@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QDir>
+#include <QIntValidator>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -36,6 +37,9 @@ void MainWindow::Save()
     QString fileName = QFileDialog::getSaveFileName(this,
             tr("Save Tibia Launcher"), "",
             tr("Tibia (*.exe);;All Files (*)"));
+
+    if(fileName.isEmpty())
+        return;
 
     const unsigned int port = ui->edit_port->text().toUInt();
     const std::string ip_raw = ui->edit_ip->text().toStdString();
