@@ -27,17 +27,37 @@ namespace fs = boost::filesystem;
 
 std::vector<char> ReadFile(const fs::path& path)
 {
-    fs::ifstream tibia_binary(path, std::ios::binary); // Create a FILE-pointer to the binary
-    tibia_binary.seekg(0, fs::ifstream::end); // Seek to the end of the file
-    std::size_t size = tibia_binary.tellg();  // Read the file size
-    tibia_binary.seekg(0, fs::ifstream::beg); // Seek to the beginning of the file
+    fs::ifstream binary(path, std::ios::binary); // Create a FILE-pointer to the binary
+    binary.seekg(0, fs::ifstream::end);          // Seek to the end of the file
+    std::size_t size = binary.tellg();           // Read the file size
+    binary.seekg(0, fs::ifstream::beg);          // Seek to the beginning of the file
     std::vector<char> buff(size);
-    tibia_binary.read(buff.data(), size);     // Write the contents to "buff"
-    tibia_binary.close();
+    binary.read(buff.data(), size);              // Write the contents to "buff"
+    binary.close();
+    return buff;
+}
+
+std::string ReadFileString(const fs::path& path)
+{
+    fs::ifstream binary(path, std::ios::binary); // Creates an inputstream to the binary
+    binary.seekg(0, fs::ifstream::end);          // Seek to the end of the file
+    std::size_t size = binary.tellg();           // Read the file size
+    binary.seekg(0, fs::ifstream::beg);          // Seek to the beginning of the file
+    std::string buff;
+    buff.resize(size);
+    binary.read(&buff[0], size);                 // Write the contents to "buff"
+    binary.close();
     return buff;
 }
 
 void WriteFile(const fs::path& path, const std::vector<char>& buff)
+{
+    fs::ofstream output(path, std::ios::binary);
+    output.write(buff.data(), buff.size());
+    output.close();
+}
+
+void WriteFileString(const fs::path& path, const std::string& buff)
 {
     fs::ofstream output(path, std::ios::binary);
     output.write(buff.data(), buff.size());

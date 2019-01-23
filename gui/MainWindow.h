@@ -17,7 +17,7 @@ public:
 private slots:
     void ChangeIP();
     void Browse();
-
+    void Save();
 private:
     Ui::MainWindow *ui;
 };
