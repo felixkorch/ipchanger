@@ -6,6 +6,8 @@
 #include <QFileDialog>
 #include <QDir>
 #include <QIntValidator>
+#include <QtConcurrent/QtConcurrentRun>
+#include <QTimer>
 
 namespace sys = ipchanger::system;
 namespace ch = ipchanger::changer;
@@ -27,37 +29,37 @@ MainWindow::MainWindow(QWidget *parent) :
     this->statusBar()->setSizeGripEnabled(false);
 
     // Menu
-    QAction* saveAct = new QAction(tr("&Save"), this);
+    QAction* saveAct = new QAction{ tr("&Save"), this };
     connect(saveAct, &QAction::triggered, this, &MainWindow::Save);
     ui->menuOptions->addAction(saveAct);
 
     //Widgets
-    ui->edit_port->setValidator( new QIntValidator(this) );
+    ui->edit_port->setValidator( new QIntValidator{ this } );
     ui->edit_ip->setPlaceholderText("127.0.0.1");
     ui->edit_port->setPlaceholderText("7171");
     ui->edit_path->setPlaceholderText("path/to/tibia");
 }
 
-std::optional<unsigned int> MainWindow::GetPort()
+auto MainWindow::GetPort()
 {
-    QString port = ui->edit_port->text();
+    QString port{ ui->edit_port->text() };
     if(port.isEmpty())
-        return std::nullopt;
+        return std::optional<unsigned int>{};
     return std::make_optional(port.toUInt());
 }
-std::optional<std::string> MainWindow::GetIP()
+auto MainWindow::GetIP()
 {
-    QString ip = ui->edit_ip->text();
+    QString ip { ui->edit_ip->text() };
     if(ip.isEmpty())
-        return std::nullopt;
+        return std::optional<std::string>{};
     return std::make_optional(ip.toStdString());
 }
-std::optional<fs::path> MainWindow::GetPath()
+auto MainWindow::GetPath()
 {
-    QString path = ui->edit_path->text();
+    QString path{ ui->edit_path->text() };
     if(path.isEmpty())
-        return std::nullopt;
-    return std::make_optional(fs::path(path.toStdString()));
+        return std::optional<fs::path>{};
+    return std::make_optional(fs::path{ path.toStdString() });
 }
 
 void MainWindow::Warning(const std::string& msg)
@@ -71,9 +73,9 @@ void MainWindow::Warning(const std::string& msg)
 
 void MainWindow::Save()
 {
-    QString file_name = QFileDialog::getSaveFileName(this,
+    QString file_name{ QFileDialog::getSaveFileName(this,
             tr("Save Tibia Launcher"), "",
-            tr("Tibia (*.exe);;All Files (*)"));
+            tr("Tibia (*.exe);;All Files (*)")) };
 
     if(file_name.isEmpty())
         return;
@@ -89,10 +91,21 @@ void MainWindow::Save()
 
     auto resolve_ip = sys::Resolve(ip_raw.value());
     auto ip = resolve_ip.has_value() ? resolve_ip.value() : ip_raw;
+    auto in = file_path.value() / TIBIA;
+    auto out = file_name.toStdString();
 
-    fs::path in(file_path.value() / TIBIA);
-    fs::path out(file_name.toStdString());
-    ch::ChangeIP(ip.value(), port.value(), in, out);
+    if(!fs::exists(in)) {
+        Warning("Couldn't find Tibia(.exe)");
+        return;
+    }
+
+    auto ip_s = std::make_shared<std::string>(ip.value());
+    auto port_s = std::make_shared<unsigned int>(port.value());
+    auto in_s = std::make_shared<fs::path>(in);
+    auto out_s = std::make_shared<fs::path>(out);
+
+    std::thread t1(ch::ChangeIP, ip_s, port_s, in_s, out_s);
+    t1.detach();
 }
 
 void MainWindow::Browse()
@@ -123,7 +136,6 @@ void MainWindow::ChangeIP()
     auto resolve_ip = sys::Resolve(ip_raw.value());
     auto ip = resolve_ip.has_value() ? resolve_ip.value() : ip_raw;
     auto unique_name = fs::unique_path(RAND); // Generates a unqiue name
-
     auto out = path_name.value() / unique_name;
     auto in = path_name.value() / TIBIA;
 
@@ -132,8 +144,17 @@ void MainWindow::ChangeIP()
         return;
     }
 
-    ch::ChangeIP(ip.value(), port.value(), in, out);
-    ch::LaunchTemporary(out);
+    auto ip_s = std::make_shared<std::string>(ip.value());
+    auto port_s = std::make_shared<unsigned int>(port.value());
+    auto in_s = std::make_shared<fs::path>(in);
+    auto out_s = std::make_shared<fs::path>(out);
+
+
+    std::thread t([ip_s, port_s, in_s, out_s] {
+        ch::ChangeIP(ip_s, port_s, in_s, out_s);
+        ch::LaunchTemporary(out_s);
+    });
+    t.detach();
 }
 
 

@@ -27,28 +27,35 @@ namespace fs = boost::filesystem;
 
 inline std::vector<char> ReadFile(const fs::path& path)
 {
-    fs::ifstream in(path.string(), std::ios::binary);
-    return std::vector<char>(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+    fs::ifstream in{ path.string(), std::ios::binary };
+    return std::vector<char>{ std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>() };
 }
 
 inline std::string ReadFileString(const fs::path& path)
 {
-    fs::ifstream in(path.string(), std::ios::binary);
-    return std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+    fs::ifstream in{ path.string(), std::ios::binary };
+    return std::string{ std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>() };
 }
 
 inline void WriteFile(const fs::path& path, const std::vector<char>& buff)
 {
-    fs::ofstream output(path, std::ios::binary);
+    fs::ofstream output{ path, std::ios::binary };
     output.write(buff.data(), buff.size());
     output.close();
 }
 
 inline void WriteFileString(const fs::path& path, const std::string& buff)
 {
-    fs::ofstream output(path, std::ios::binary);
+    using clock = std::chrono::system_clock;
+    using ms = std::chrono::milliseconds;
+    const auto before = clock::now(); // Measure time
+
+    fs::ofstream output{ path, std::ios::binary };
     output.write(buff.data(), buff.size());
     output.close();
+
+    const auto duration = std::chrono::duration_cast<ms>(clock::now() - before);
+    std::cout << "Duration : " << duration.count() / 1000.0f << std::endl;
 }
 
 struct AsciiNum {

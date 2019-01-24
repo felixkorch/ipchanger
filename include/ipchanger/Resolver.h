@@ -40,6 +40,8 @@ inline std::optional<std::string> Resolve(const std::string& hostname)
     initialise();
     he = gethostbyname(hostname.c_str());
     uninitialise();
+    if(he == nullptr)
+        return std::nullopt;
     const char* adr = inet_ntoa(*((struct in_addr*) he->h_addr_list[0]));
     auto ip = std::make_optional(std::string(adr));
     return ip;

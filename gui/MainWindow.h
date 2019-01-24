@@ -24,9 +24,9 @@ private slots:
 private:
     Ui::MainWindow *ui;
     void Warning(const std::string& msg);
-    std::optional<unsigned int> GetPort();
-    std::optional<std::string> GetIP();
-    std::optional<boost::filesystem::path> GetPath();
+    auto GetPort();
+    auto GetIP();
+    auto GetPath();
 };
 
 #endif // MAINWINDOW_H

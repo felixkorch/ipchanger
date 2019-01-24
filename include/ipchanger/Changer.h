@@ -20,7 +20,8 @@ static const std::string RSA_KEY =
 
 namespace fs = boost::filesystem;
 
-inline void ChangeIP(const std::string& ip, unsigned int port, const fs::path& in, const fs::path& out)
+inline void ChangeIP(std::shared_ptr<std::string> ip_s, std::shared_ptr<unsigned int> port_s,
+                     std::shared_ptr<fs::path> in_s,  std::shared_ptr<fs::path> out_s)
 {
     /*
         using clock = std::chrono::system_clock;
@@ -28,12 +29,17 @@ inline void ChangeIP(const std::string& ip, unsigned int port, const fs::path& i
         const auto before = clock::now(); // Measure time
     */
 
-    std::string buff = system::ReadFileString(in);
+    auto ip = *ip_s.get();
+    auto port = *port_s.get();
+    auto in = *in_s.get();
+    auto out = *out_s.get();
 
-    const std::string p1 = "login0"; // login0x.tibia.com
-    const std::string p2 = "cipsoft."; // tibia0x.cipsoft.com
-    const std::string rsa1 = "1321277432058722840622950990822933849527763264961655079678763"; // First try to find this RSA
-    const std::string rsa2 = "124710459426827943004376449897985582167801707960697037164044904"; // Fallback RSA (pre 8.61)
+    std::string buff{ system::ReadFileString(in) };
+
+    const std::string p1{ "login0" }; // login0x.tibia.com
+    const std::string p2 { "cipsoft." }; // tibia0x.cipsoft.com
+    const std::string rsa1{ "1321277432058722840622950990822933849527763264961655079678763" }; // First try to find this RSA
+    const std::string rsa2{ "124710459426827943004376449897985582167801707960697037164044904" }; // Fallback RSA (pre 8.61)
 
     // First search
     auto search = std::search(buff.begin(), buff.end(), std::boyer_moore_searcher(p1.begin(), p1.end()));
@@ -69,8 +75,10 @@ inline void ChangeIP(const std::string& ip, unsigned int port, const fs::path& i
     */
 }
 
-inline void LaunchTemporary(const fs::path& path)
+inline void LaunchTemporary(std::shared_ptr<fs::path> path_s)
 {
+    auto path = *path_s.get();
+
     if(!fs::exists(path))
         return;
 
