@@ -89,8 +89,6 @@ void MainWindow::Save()
         return;
     }
 
-    auto resolve_ip = sys::Resolve(ip_raw.value());
-    auto ip = resolve_ip.has_value() ? resolve_ip.value() : ip_raw;
     auto in = file_path.value() / TIBIA;
     auto out = file_name.toStdString();
 
@@ -98,6 +96,9 @@ void MainWindow::Save()
         Warning("Couldn't find Tibia(.exe)");
         return;
     }
+
+    auto resolve_ip = sys::Resolve(ip_raw.value());
+    auto ip = resolve_ip.has_value() ? resolve_ip.value() : ip_raw;
 
     auto ip_s = std::make_shared<std::string>(ip.value());
     auto port_s = std::make_shared<unsigned int>(port.value());
@@ -133,8 +134,6 @@ void MainWindow::ChangeIP()
         return;
     }
 
-    auto resolve_ip = sys::Resolve(ip_raw.value());
-    auto ip = resolve_ip.has_value() ? resolve_ip.value() : ip_raw;
     auto unique_name = fs::unique_path(RAND); // Generates a unqiue name
     auto out = path_name.value() / unique_name;
     auto in = path_name.value() / TIBIA;
@@ -143,6 +142,9 @@ void MainWindow::ChangeIP()
         Warning("Couldn't find Tibia(.exe)");
         return;
     }
+
+    auto resolve_ip = sys::Resolve(ip_raw.value());
+    auto ip = resolve_ip.has_value() ? resolve_ip.value() : ip_raw;
 
     auto ip_s = std::make_shared<std::string>(ip.value());
     auto port_s = std::make_shared<unsigned int>(port.value());
