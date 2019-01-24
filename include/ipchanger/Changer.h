@@ -5,10 +5,8 @@
 #include <boost/filesystem.hpp>
 #include "ipchanger/System.h"
 #include <iostream>
-#include <stdio.h>
 #include <string>
 #include <algorithm>
-#include <regex>
 
 namespace ipchanger::changer {
 
@@ -37,20 +35,22 @@ inline void ChangeIP(const std::string& ip, unsigned int port, const fs::path& i
     const std::string rsa1 = "1321277432058722840622950990822933849527763264961655079678763"; // First try to find this RSA
     const std::string rsa2 = "124710459426827943004376449897985582167801707960697037164044904"; // Fallback RSA (pre 8.61)
 
+    // First search
     auto search = std::search(buff.begin(), buff.end(), std::boyer_moore_searcher(p1.begin(), p1.end()));
     while(search != buff.end()) {
         std::copy(ip.c_str(), ip.c_str() + ip.size() + 1, search);
         search = std::search(search, buff.end(), std::boyer_moore_searcher(p1.begin(), p1.end()));
     }
 
+    // Second search
     search = std::search(buff.begin(), buff.end(), std::boyer_moore_searcher(p2.begin(), p2.end()));
     while(search != buff.end()) {
         std::copy(ip.c_str(), ip.c_str() + ip.size() + 1, search);
         search = std::search(search, buff.end(), std::boyer_moore_searcher(p2.begin(), p2.end()));
     }
 
+    // Third search
     search = std::search(buff.begin(), buff.end(), std::boyer_moore_searcher(rsa1.begin(), rsa1.end()));
-
     if(search != buff.end()) {
         std::copy(std::begin(RSA_KEY), std::end(RSA_KEY), search);
     }
@@ -69,7 +69,7 @@ inline void ChangeIP(const std::string& ip, unsigned int port, const fs::path& i
     */
 }
 
-void LaunchTemporary(const fs::path& path)
+inline void LaunchTemporary(const fs::path& path)
 {
     if(!fs::exists(path))
         return;

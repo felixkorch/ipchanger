@@ -25,26 +25,26 @@ constexpr OS current_os = OS::Windows;
 
 namespace fs = boost::filesystem;
 
-std::vector<char> ReadFile(const fs::path& path)
+inline std::vector<char> ReadFile(const fs::path& path)
 {
     fs::ifstream in(path.string(), std::ios::binary);
     return std::vector<char>(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
 }
 
-std::string ReadFileString(const fs::path& path)
+inline std::string ReadFileString(const fs::path& path)
 {
     fs::ifstream in(path.string(), std::ios::binary);
     return std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
 }
 
-void WriteFile(const fs::path& path, const std::vector<char>& buff)
+inline void WriteFile(const fs::path& path, const std::vector<char>& buff)
 {
     fs::ofstream output(path, std::ios::binary);
     output.write(buff.data(), buff.size());
     output.close();
 }
 
-void WriteFileString(const fs::path& path, const std::string& buff)
+inline void WriteFileString(const fs::path& path, const std::string& buff)
 {
     fs::ofstream output(path, std::ios::binary);
     output.write(buff.data(), buff.size());

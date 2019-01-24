@@ -62,7 +62,7 @@
      <item>
       <widget class="QLineEdit" name="edit_port">
        <property name="text">
-        <string>7171</string>
+        <string/>
        </property>
       </widget>
      </item>
@@ -78,7 +78,7 @@
        <item>
         <widget class="QLineEdit" name="edit_path">
          <property name="text">
-          <string>path/to/tibia/exe</string>
+          <string/>
          </property>
          <property name="readOnly">
           <bool>true</bool>
@@ -116,7 +116,7 @@
      <x>0</x>
      <y>0</y>
      <width>350</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOptions">

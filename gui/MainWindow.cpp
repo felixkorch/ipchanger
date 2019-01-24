@@ -7,6 +7,13 @@
 #include <QDir>
 #include <QIntValidator>
 
+namespace sys = ipchanger::system;
+namespace ch = ipchanger::changer;
+namespace fs = boost::filesystem;
+
+static auto constexpr RAND = (sys::current_os == sys::OS::Windows) ? ".%%%%_%%%%_%%%%_%%%%.exe" : ".%%%%_%%%%_%%%%_%%%%";
+static auto constexpr TIBIA = (sys::current_os == sys::OS::Windows) ? "Tibia.exe" : "Tibia";
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -16,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Window setup
     connect(ui->button_launch, SIGNAL (released()), this, SLOT (ChangeIP()));
     connect(ui->button_browse, SIGNAL (released()), this, SLOT (Browse()));
-    this->setFixedSize(QSize(332, 312));
+    this->setFixedSize(WINDOW_DIMENSIONS);
     this->statusBar()->setSizeGripEnabled(false);
 
     // Menu
@@ -26,6 +33,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Widgets
     ui->edit_port->setValidator( new QIntValidator(this) );
+    ui->edit_ip->setPlaceholderText("127.0.0.1");
+    ui->edit_port->setPlaceholderText("7171");
+    ui->edit_path->setPlaceholderText("path/to/tibia");
 }
 
 std::optional<unsigned int> MainWindow::GetPort()
@@ -42,17 +52,13 @@ std::optional<std::string> MainWindow::GetIP()
         return std::nullopt;
     return std::make_optional(ip.toStdString());
 }
-std::optional<std::string> MainWindow::GetPath()
+std::optional<fs::path> MainWindow::GetPath()
 {
     QString path = ui->edit_path->text();
     if(path.isEmpty())
         return std::nullopt;
-    return std::make_optional(path.toStdString());
+    return std::make_optional(fs::path(path.toStdString()));
 }
-
-namespace sys = ipchanger::system;
-namespace ch = ipchanger::changer;
-namespace fs = boost::filesystem;
 
 void MainWindow::Warning(const std::string& msg)
 {
@@ -65,39 +71,12 @@ void MainWindow::Warning(const std::string& msg)
 
 void MainWindow::Save()
 {
-    QString fileName = QFileDialog::getSaveFileName(this,
+    QString file_name = QFileDialog::getSaveFileName(this,
             tr("Save Tibia Launcher"), "",
             tr("Tibia (*.exe);;All Files (*)"));
 
-    if(fileName.isEmpty())
+    if(file_name.isEmpty())
         return;
-
-    if(!GetIP().has_value() || !GetPath().has_value() || !GetPort().has_value()) {
-        Warning("Please fill in all fields.");
-        return;
-    }
-
-    const unsigned int port = ui->edit_port->text().toUInt();
-    const std::string ip_raw = ui->edit_ip->text().toStdString();
-    auto resolve_ip = sys::Resolve(ip_raw);
-    const std::string ip = resolve_ip.has_value() ? resolve_ip.value() : ip_raw;
-    const std::string file_path = ui->edit_path->text().toStdString();
-
-    fs::path in(file_path);
-    fs::path out(fileName.toStdString());
-    ipchanger::changer::ChangeIP(ip, port, in, out);
-}
-
-void MainWindow::Browse()
-{
-   ui->edit_path->setText(QFileDialog::getOpenFileName());
-}
-
-void MainWindow::ChangeIP()
-{
-    QMessageBox msgBox;
-    msgBox.setWindowTitle("Tibia IP-Changer");
-    msgBox.setIcon(QMessageBox::Warning);
 
     auto port = GetPort();
     auto ip_raw = GetIP();
@@ -111,14 +90,45 @@ void MainWindow::ChangeIP()
     auto resolve_ip = sys::Resolve(ip_raw.value());
     auto ip = resolve_ip.has_value() ? resolve_ip.value() : ip_raw;
 
-    auto constexpr RAND = (sys::current_os == sys::OS::Windows) ? ".%%%%_%%%%_%%%%_%%%%.exe" : ".%%%%_%%%%_%%%%_%%%%";
+    fs::path in(file_path.value() / TIBIA);
+    fs::path out(file_name.toStdString());
+    ch::ChangeIP(ip.value(), port.value(), in, out);
+}
+
+void MainWindow::Browse()
+{
+   QFileDialog browse;
+   browse.setOption(QFileDialog::ShowDirsOnly);
+   auto path_name = browse.getExistingDirectory();
+   if(path_name.isNull() || path_name.isEmpty())
+       return;
+   ui->edit_path->setText(path_name);
+}
+
+void MainWindow::ChangeIP()
+{
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Tibia IP-Changer");
+    msgBox.setIcon(QMessageBox::Warning);
+
+    auto port = GetPort();
+    auto ip_raw = GetIP();
+    auto path_name = GetPath();
+
+    if(!port.has_value() || !path_name.has_value() || !ip_raw.has_value()) {
+        Warning("Please fill in all fields.");
+        return;
+    }
+
+    auto resolve_ip = sys::Resolve(ip_raw.value());
+    auto ip = resolve_ip.has_value() ? resolve_ip.value() : ip_raw;
     auto unique_name = fs::unique_path(RAND); // Generates a unqiue name
 
-    auto out = fs::path(file_path.value()).parent_path() / unique_name;
-    auto in = fs::path(file_path.value());
+    auto out = path_name.value() / unique_name;
+    auto in = path_name.value() / TIBIA;
 
     if(!fs::exists(in)) {
-        Warning("Couldn't find Tibia executable");
+        Warning("Couldn't find Tibia(.exe)");
         return;
     }
 

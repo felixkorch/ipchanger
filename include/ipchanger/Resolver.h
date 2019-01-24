@@ -15,7 +15,7 @@ namespace ipchanger::system {
 #include <arpa/inet.h>
 #endif
 
-static void initialise(void)
+inline static void initialise(void)
 {
 #ifdef _WIN32
     WSADATA data;
@@ -27,14 +27,14 @@ static void initialise(void)
 #endif
 }
 
-static void uninitialise (void)
+inline static void uninitialise (void)
 {
 #ifdef _WIN32
     WSACleanup ();
 #endif
 }
 
-std::optional<std::string> Resolve(const std::string& hostname)
+inline std::optional<std::string> Resolve(const std::string& hostname)
 {
     struct hostent* he;
     initialise();

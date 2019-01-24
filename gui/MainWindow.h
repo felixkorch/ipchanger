@@ -2,6 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <boost/filesystem.hpp>
+
+constexpr QSize WINDOW_DIMENSIONS(332, 312);
 
 namespace Ui {
 class MainWindow;
@@ -23,7 +26,7 @@ private:
     void Warning(const std::string& msg);
     std::optional<unsigned int> GetPort();
     std::optional<std::string> GetIP();
-    std::optional<std::string> GetPath();
+    std::optional<boost::filesystem::path> GetPath();
 };
 
 #endif // MAINWINDOW_H
