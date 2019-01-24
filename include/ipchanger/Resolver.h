@@ -9,10 +9,10 @@
 namespace ipchanger::system {
 
 #ifdef _WIN32
-#  include "winsock.h"
+#include "winsock.h"
 #else
-#  include <netdb.h>
-#  include <arpa/inet.h>
+#include <netdb.h>
+#include <arpa/inet.h>
 #endif
 
 static void initialise(void)

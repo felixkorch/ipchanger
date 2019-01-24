@@ -27,27 +27,14 @@ namespace fs = boost::filesystem;
 
 std::vector<char> ReadFile(const fs::path& path)
 {
-    fs::ifstream binary(path, std::ios::binary); // Create a FILE-pointer to the binary
-    binary.seekg(0, fs::ifstream::end);          // Seek to the end of the file
-    std::size_t size = binary.tellg();           // Read the file size
-    binary.seekg(0, fs::ifstream::beg);          // Seek to the beginning of the file
-    std::vector<char> buff(size);
-    binary.read(buff.data(), size);              // Write the contents to "buff"
-    binary.close();
-    return buff;
+    fs::ifstream in(path.string(), std::ios::binary);
+    return std::vector<char>(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
 }
 
 std::string ReadFileString(const fs::path& path)
 {
-    fs::ifstream binary(path, std::ios::binary); // Creates an inputstream to the binary
-    binary.seekg(0, fs::ifstream::end);          // Seek to the end of the file
-    std::size_t size = binary.tellg();           // Read the file size
-    binary.seekg(0, fs::ifstream::beg);          // Seek to the beginning of the file
-    std::string buff;
-    buff.resize(size);
-    binary.read(&buff[0], size);                 // Write the contents to "buff"
-    binary.close();
-    return buff;
+    fs::ifstream in(path.string(), std::ios::binary);
+    return std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
 }
 
 void WriteFile(const fs::path& path, const std::vector<char>& buff)

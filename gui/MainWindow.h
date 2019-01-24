@@ -20,6 +20,10 @@ private slots:
     void Save();
 private:
     Ui::MainWindow *ui;
+    void Warning(const std::string& msg);
+    std::optional<unsigned int> GetPort();
+    std::optional<std::string> GetIP();
+    std::optional<std::string> GetPath();
 };
 
 #endif // MAINWINDOW_H

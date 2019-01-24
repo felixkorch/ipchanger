@@ -28,9 +28,40 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->edit_port->setValidator( new QIntValidator(this) );
 }
 
+std::optional<unsigned int> MainWindow::GetPort()
+{
+    QString port = ui->edit_port->text();
+    if(port.isEmpty())
+        return std::nullopt;
+    return std::make_optional(port.toUInt());
+}
+std::optional<std::string> MainWindow::GetIP()
+{
+    QString ip = ui->edit_ip->text();
+    if(ip.isEmpty())
+        return std::nullopt;
+    return std::make_optional(ip.toStdString());
+}
+std::optional<std::string> MainWindow::GetPath()
+{
+    QString path = ui->edit_path->text();
+    if(path.isEmpty())
+        return std::nullopt;
+    return std::make_optional(path.toStdString());
+}
+
 namespace sys = ipchanger::system;
 namespace ch = ipchanger::changer;
 namespace fs = boost::filesystem;
+
+void MainWindow::Warning(const std::string& msg)
+{
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Tibia IP-Changer");
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setText(msg.c_str());
+    msgBox.exec();
+}
 
 void MainWindow::Save()
 {
@@ -40,6 +71,11 @@ void MainWindow::Save()
 
     if(fileName.isEmpty())
         return;
+
+    if(!GetIP().has_value() || !GetPath().has_value() || !GetPort().has_value()) {
+        Warning("Please fill in all fields.");
+        return;
+    }
 
     const unsigned int port = ui->edit_port->text().toUInt();
     const std::string ip_raw = ui->edit_ip->text().toStdString();
@@ -63,31 +99,30 @@ void MainWindow::ChangeIP()
     msgBox.setWindowTitle("Tibia IP-Changer");
     msgBox.setIcon(QMessageBox::Warning);
 
-    if(ui->edit_ip->text().isEmpty() || ui->edit_path->text().isEmpty() || ui->edit_port->text().isEmpty()) {
-        msgBox.setText("Please fill in all fields.");
-        msgBox.exec();
+    auto port = GetPort();
+    auto ip_raw = GetIP();
+    auto file_path = GetPath();
+
+    if(!port.has_value() || !file_path.has_value() || !ip_raw.has_value()) {
+        Warning("Please fill in all fields.");
         return;
     }
 
-    const unsigned int port = ui->edit_port->text().toUInt();
-    const std::string ip_raw = ui->edit_ip->text().toStdString();
-    auto resolve_ip = sys::Resolve(ip_raw);
-    const std::string ip = resolve_ip.has_value() ? resolve_ip.value() : ip_raw;
-    const std::string file_path = ui->edit_path->text().toStdString();
+    auto resolve_ip = sys::Resolve(ip_raw.value());
+    auto ip = resolve_ip.has_value() ? resolve_ip.value() : ip_raw;
 
     auto constexpr RAND = (sys::current_os == sys::OS::Windows) ? ".%%%%_%%%%_%%%%_%%%%.exe" : ".%%%%_%%%%_%%%%_%%%%";
     auto unique_name = fs::unique_path(RAND); // Generates a unqiue name
 
-    auto out = fs::path(file_path).parent_path() / unique_name;
-    auto in = fs::path(file_path);
+    auto out = fs::path(file_path.value()).parent_path() / unique_name;
+    auto in = fs::path(file_path.value());
 
     if(!fs::exists(in)) {
-        msgBox.setText("Couldn't find Tibia executable");
-        msgBox.exec();
+        Warning("Couldn't find Tibia executable");
         return;
     }
 
-    ch::ChangeIP(ip, port, in, out);
+    ch::ChangeIP(ip.value(), port.value(), in, out);
     ch::LaunchTemporary(out);
 }
 
