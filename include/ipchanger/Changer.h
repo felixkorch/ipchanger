@@ -20,15 +20,9 @@ static const std::string RSA_KEY =
 
 namespace fs = boost::filesystem;
 
-inline void ChangeIP(std::shared_ptr<std::string> ip_s, std::shared_ptr<unsigned int> port_s,
-                     std::shared_ptr<fs::path> in_s,  std::shared_ptr<fs::path> out_s)
+inline std::string ChangeIP(const std::string& ip, unsigned int port, const fs::path& in)
 {
-    auto ip = *ip_s.get();
-    auto port = *port_s.get();
-    auto in = *in_s.get();
-    auto out = *out_s.get();
-
-    std::string buff{ system::ReadFileString(in) };
+    std::string buff{ system::ReadFile<std::string>(in) };
 
     const std::string p1{ "login0" }; // login0x.tibia.com
     const std::string p2 { "cipsoft." }; // tibia0x.cipsoft.com
@@ -60,33 +54,8 @@ inline void ChangeIP(std::shared_ptr<std::string> ip_s, std::shared_ptr<unsigned
             std::copy(std::begin(RSA_KEY), std::end(RSA_KEY), search);
     }
 
-    using clock = std::chrono::system_clock;
-    using ms = std::chrono::milliseconds;
-    const auto before = clock::now(); // Measure time
-
-    system::WriteFileString(out, buff);
-
-    const auto duration = std::chrono::duration_cast<ms>(clock::now() - before);
-    std::cout << "Duration : " << duration.count() / 1000.0f << std::endl;
-
-    fs::permissions(out, fs::owner_all); // Allow all permissions to be able to execute it
+    return buff;
 }
-
-inline void LaunchTemporary(std::shared_ptr<fs::path> path_s)
-{
-    auto path = *path_s.get();
-
-    if(!fs::exists(path))
-        return;
-
-#ifdef _WIN32
-    SetFileAttributes((LPCSTR)path.string().c_str(), FILE_ATTRIBUTE_HIDDEN); // Hide the file on Windows
-#endif
-    fs::current_path(path.parent_path()); // Change to the Tibia directory
-    boost::process::system(path);         // Execute the temporary file
-    fs::remove(path);
-}
-
 
 } // namespace
 

@@ -10,6 +10,9 @@
 #include <vector>
 #include <functional>
 #include <iostream>
+#include <windows.h>
+#include <winnt.h>
+#include <fileapi.h>
 
 namespace ipchanger::system {
 
@@ -25,28 +28,34 @@ constexpr OS current_os = OS::Windows;
 
 namespace fs = boost::filesystem;
 
-inline std::vector<char> ReadFile(const fs::path& path)
+template <class T>
+inline T ReadFile(const fs::path& path)
 {
-    fs::ifstream in{ path.string(), std::ios::binary };
-    return std::vector<char>{ std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>() };
+    fs::ifstream in{ path, std::ios::binary };
+    return T{ std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>() };
 }
 
-inline std::string ReadFileString(const fs::path& path)
+inline void WriteBinary(const fs::path& path, const char* buff, std::size_t length, unsigned long options = FILE_ATTRIBUTE_NORMAL)
 {
-    fs::ifstream in{ path.string(), std::ios::binary };
-    return std::string{ std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>() };
-}
-
-inline void WriteFile(const fs::path& path, const std::vector<char>& buff)
-{
+#ifdef _WIN32
+    HANDLE handl = CreateFile(path.string().c_str(), GENERIC_WRITE, 0, nullptr,
+    CREATE_ALWAYS, options, nullptr);
+    WriteFile(handl, buff, length, nullptr, nullptr);
+    CloseHandle(handl);
+#else
     fs::ofstream output{ path, std::ios::binary };
-    output.write(buff.data(), buff.size());
+    output.write(buff, length);
+    fs::permissions(path, fs::owner_all); // Allow all permissions to be able to execute it
+#endif
 }
 
-inline void WriteFileString(const fs::path& path, const std::string& buff)
+inline void ExecuteBinary(const fs::path& path)
 {
-    fs::ofstream output{ path, std::ios::binary };
-    output.write(buff.data(), buff.size());
+    if(!fs::exists(path))
+        return;
+
+    fs::current_path(path.parent_path());
+    boost::process::system(path);
 }
 
 struct AsciiNum {

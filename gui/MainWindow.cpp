@@ -6,8 +6,7 @@
 #include <QFileDialog>
 #include <QDir>
 #include <QIntValidator>
-#include <QtConcurrent/QtConcurrentRun>
-#include <QTimer>
+#include <QtConcurrent/QtConcurrent>
 
 namespace sys = ipchanger::system;
 namespace ch = ipchanger::changer;
@@ -15,6 +14,16 @@ namespace fs = boost::filesystem;
 
 static auto constexpr RAND = (sys::current_os == sys::OS::Windows) ? ".%%%%_%%%%_%%%%_%%%%.exe" : ".%%%%_%%%%_%%%%_%%%%";
 static auto constexpr TIBIA = (sys::current_os == sys::OS::Windows) ? "Tibia.exe" : "Tibia";
+static auto constexpr DEFAULT_IP = "127.0.0.1";
+static auto constexpr DEFAULT_PORT = "7171";
+static auto constexpr DEFAULT_PATH = "path/to/tibia";
+
+struct Fields
+{
+    const std::string ip;
+    unsigned int port;
+    const fs::path in;
+};
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -23,21 +32,29 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     // Window setup
-    connect(ui->button_launch, SIGNAL (released()), this, SLOT (ChangeIP()));
+    connect(ui->button_launch, SIGNAL (released()), this, SLOT (Launch()));
     connect(ui->button_browse, SIGNAL (released()), this, SLOT (Browse()));
+    connect(&this->change_watcher, SIGNAL (finished()), this, SLOT (ChangeFinished()));
     this->setFixedSize(WINDOW_DIMENSIONS);
     this->statusBar()->setSizeGripEnabled(false);
+    QWidget::setWindowTitle(TITLE);
 
     // Menu
     QAction* saveAct = new QAction{ tr("&Save"), this };
     connect(saveAct, &QAction::triggered, this, &MainWindow::Save);
     ui->menuOptions->addAction(saveAct);
 
+    QAction* aboutAct = new QAction{ tr("&About"), this };
+    connect(aboutAct, &QAction::triggered, this, &MainWindow::About);
+    ui->menuAbout->addAction(aboutAct);
+
     //Widgets
     ui->edit_port->setValidator( new QIntValidator{ this } );
-    ui->edit_ip->setPlaceholderText("127.0.0.1");
-    ui->edit_port->setPlaceholderText("7171");
-    ui->edit_path->setPlaceholderText("path/to/tibia");
+    ui->edit_ip->setPlaceholderText(DEFAULT_IP);
+    ui->edit_port->setPlaceholderText(DEFAULT_PORT);
+    ui->edit_path->setPlaceholderText(DEFAULT_PATH);
+    ui->progressBar->hide();
+    ui->progressBar->setRange(0, 0);
 }
 
 auto MainWindow::GetPort()
@@ -65,14 +82,56 @@ auto MainWindow::GetPath()
 void MainWindow::Warning(const std::string& msg)
 {
     QMessageBox msgBox;
-    msgBox.setWindowTitle("Tibia IP-Changer");
+    msgBox.setWindowTitle(TITLE);
     msgBox.setIcon(QMessageBox::Warning);
     msgBox.setText(msg.c_str());
     msgBox.exec();
 }
 
+void MainWindow::About()
+{
+    QString ver = VERSION;
+    QString msg = "A Tibia IP-Changer for OT\nVersion: " + ver;
+
+    QMessageBox::about(this, TITLE, msg);
+}
+
+auto MainWindow::ReadFields()
+{
+    auto port = GetPort();
+    auto ip_raw = GetIP();
+    auto path_name = GetPath();
+
+    if(!port.has_value() || !path_name.has_value() || !ip_raw.has_value()) {
+        Warning("Please fill in all fields.");
+        return std::optional<Fields>{};
+    }
+
+    auto in = path_name.value() / TIBIA;
+
+    if(!fs::exists(in)) {
+        Warning("Couldn't find Tibia(.exe)");
+        return std::optional<Fields>{};
+    }
+
+    auto resolve_ip = sys::Resolve(ip_raw.value());
+    auto ip = resolve_ip.has_value() ? resolve_ip.value() : ip_raw.value();
+    return std::make_optional(Fields{ ip, port.value(), in });
+}
+
+void MainWindow::ChangeFinished()
+{
+    ui->progressBar->hide();
+}
+
 void MainWindow::Save()
 {
+    auto fields = ReadFields();
+    if(!fields.has_value())
+        return;
+
+    auto c = fields.value();
+
     QString file_name{ QFileDialog::getSaveFileName(this,
             tr("Save Tibia Launcher"), "",
             tr("Tibia (*.exe);;All Files (*)")) };
@@ -80,33 +139,12 @@ void MainWindow::Save()
     if(file_name.isEmpty())
         return;
 
-    auto port = GetPort();
-    auto ip_raw = GetIP();
-    auto file_path = GetPath();
-
-    if(!port.has_value() || !file_path.has_value() || !ip_raw.has_value()) {
-        Warning("Please fill in all fields.");
-        return;
-    }
-
-    auto in = file_path.value() / TIBIA;
-    auto out = file_name.toStdString();
-
-    if(!fs::exists(in)) {
-        Warning("Couldn't find Tibia(.exe)");
-        return;
-    }
-
-    auto resolve_ip = sys::Resolve(ip_raw.value());
-    auto ip = resolve_ip.has_value() ? resolve_ip.value() : ip_raw;
-
-    auto ip_s = std::make_shared<std::string>(ip.value());
-    auto port_s = std::make_shared<unsigned int>(port.value());
-    auto in_s = std::make_shared<fs::path>(in);
-    auto out_s = std::make_shared<fs::path>(out);
-
-    std::thread t1(ch::ChangeIP, ip_s, port_s, in_s, out_s);
-    t1.detach();
+    ui->progressBar->show();
+    auto future = QtConcurrent::run([ip{c.ip}, port{c.port}, in{c.in}, out{file_name.toStdString()}] {
+        auto buff = ch::ChangeIP(ip, port, in);
+        sys::WriteBinary(fs::path(out), buff.data(), buff.size());
+    });
+    this->change_watcher.setFuture(future);
 }
 
 void MainWindow::Browse()
@@ -119,44 +157,24 @@ void MainWindow::Browse()
    ui->edit_path->setText(path_name);
 }
 
-void MainWindow::ChangeIP()
+void MainWindow::Launch()
 {
-    QMessageBox msgBox;
-    msgBox.setWindowTitle("Tibia IP-Changer");
-    msgBox.setIcon(QMessageBox::Warning);
-
-    auto port = GetPort();
-    auto ip_raw = GetIP();
-    auto path_name = GetPath();
-
-    if(!port.has_value() || !path_name.has_value() || !ip_raw.has_value()) {
-        Warning("Please fill in all fields.");
+    auto fields = ReadFields();
+    if(!fields.has_value())
         return;
-    }
 
-    auto unique_name = fs::unique_path(RAND); // Generates a unqiue name
-    auto out = path_name.value() / unique_name;
-    auto in = path_name.value() / TIBIA;
+    auto c = fields.value();
+    auto unique_name = fs::unique_path(RAND);
+    auto out = c.in.parent_path() / unique_name;
 
-    if(!fs::exists(in)) {
-        Warning("Couldn't find Tibia(.exe)");
-        return;
-    }
-
-    auto resolve_ip = sys::Resolve(ip_raw.value());
-    auto ip = resolve_ip.has_value() ? resolve_ip.value() : ip_raw;
-
-    auto ip_s = std::make_shared<std::string>(ip.value());
-    auto port_s = std::make_shared<unsigned int>(port.value());
-    auto in_s = std::make_shared<fs::path>(in);
-    auto out_s = std::make_shared<fs::path>(out);
-
-
-    std::thread t([ip_s, port_s, in_s, out_s] {
-        ch::ChangeIP(ip_s, port_s, in_s, out_s);
-        ch::LaunchTemporary(out_s);
+    ui->progressBar->show();
+    auto future = QtConcurrent::run([ip{c.ip}, port{c.port}, in{c.in}, out] {
+        auto buff = ch::ChangeIP(ip, port, in);
+        sys::WriteBinary(out, buff.data(), buff.size(), FILE_ATTRIBUTE_HIDDEN);
+        sys::ExecuteBinary(out);
+        fs::remove(out);
     });
-    t.detach();
+    this->change_watcher.setFuture(future);
 }
 
 

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>350</width>
-    <height>328</height>
+    <height>334</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -32,7 +32,7 @@
       <x>20</x>
       <y>20</y>
       <width>291</width>
-      <height>181</height>
+      <height>200</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -99,14 +99,27 @@
    <widget class="QPushButton" name="button_launch">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>230</y>
+      <x>20</x>
+      <y>240</y>
       <width>101</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
      <string>Launch</string>
+    </property>
+   </widget>
+   <widget class="QProgressBar" name="progressBar">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>245</y>
+      <width>215</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="value">
+     <number>0</number>
     </property>
    </widget>
   </widget>
@@ -125,7 +138,13 @@
     </property>
     <addaction name="separator"/>
    </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>Help</string>
+    </property>
+   </widget>
    <addaction name="menuOptions"/>
+   <addaction name="menuAbout"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
