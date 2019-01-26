@@ -9,7 +9,6 @@
 #include <QtConcurrent/QtConcurrent>
 
 namespace sys = ipchanger::system;
-namespace ch = ipchanger::changer;
 namespace fs = boost::filesystem;
 
 static auto constexpr RAND = (sys::current_os == sys::OS::Windows) ? ".%%%%_%%%%_%%%%_%%%%.exe" : ".%%%%_%%%%_%%%%_%%%%";
@@ -34,7 +33,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // Window setup
     connect(ui->button_launch, SIGNAL (released()), this, SLOT (Launch()));
     connect(ui->button_browse, SIGNAL (released()), this, SLOT (Browse()));
-    connect(&this->change_watcher, SIGNAL (finished()), this, SLOT (ChangeFinished()));
+    connect(&this->launch_watcher, SIGNAL (finished()), this, SLOT (LaunchFinished()));
+    connect(&this->save_watcher, SIGNAL (finished()), this, SLOT (SaveFinished()));
     this->setFixedSize(WINDOW_DIMENSIONS);
     this->statusBar()->setSizeGripEnabled(false);
     QWidget::setWindowTitle(TITLE);
@@ -116,10 +116,20 @@ auto MainWindow::ReadFields()
 
     auto resolve_ip = sys::Resolve(ip_raw.value());
     auto ip = resolve_ip.has_value() ? resolve_ip.value() : ip_raw.value();
+    ui->label_ip->setText("IP-Address (" +  QString(ip.c_str()) + ")");
     return std::make_optional(Fields{ ip, port.value(), in });
 }
 
-void MainWindow::ChangeFinished()
+void MainWindow::LaunchFinished()
+{
+    ui->progressBar->hide();
+    QtConcurrent::run([out{launch_watcher.future()}]{
+        sys::ExecuteBinary(out);
+        fs::remove(out);
+    });
+}
+
+void MainWindow::SaveFinished()
 {
     ui->progressBar->hide();
 }
@@ -141,10 +151,10 @@ void MainWindow::Save()
 
     ui->progressBar->show();
     auto future = QtConcurrent::run([ip{c.ip}, port{c.port}, in{c.in}, out{file_name.toStdString()}] {
-        auto buff = ch::ChangeIP(ip, port, in);
+        auto buff = ipchanger::ChangeIP(ip, port, in);
         sys::WriteBinary(fs::path(out), buff.data(), buff.size());
     });
-    this->change_watcher.setFuture(future);
+    this->save_watcher.setFuture(future);
 }
 
 void MainWindow::Browse()
@@ -169,12 +179,11 @@ void MainWindow::Launch()
 
     ui->progressBar->show();
     auto future = QtConcurrent::run([ip{c.ip}, port{c.port}, in{c.in}, out] {
-        auto buff = ch::ChangeIP(ip, port, in);
-        sys::WriteBinary(out, buff.data(), buff.size(), FILE_ATTRIBUTE_HIDDEN);
-        sys::ExecuteBinary(out);
-        fs::remove(out);
+        auto buff = ipchanger::ChangeIP(ip, port, in);
+        sys::WriteBinary(out, buff.data(), buff.size(), sys::WINDOWS_HIDDEN_FILE);
+        return out;
     });
-    this->change_watcher.setFuture(future);
+    this->launch_watcher.setFuture(future);
 }
 
 

@@ -21,14 +21,16 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 private slots:
-    void ChangeFinished();
+    void LaunchFinished();
+    void SaveFinished();
     void Launch();
     void Browse();
     void Save();
     void About();
 private:
     Ui::MainWindow* ui;
-    QFutureWatcher<void> change_watcher;
+    QFutureWatcher<void> save_watcher;
+    QFutureWatcher<boost::filesystem::path> launch_watcher;
     auto ReadFields();
     void Warning(const std::string& msg);
     auto GetPort();

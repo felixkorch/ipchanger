@@ -34,14 +34,14 @@ inline static void uninitialise (void)
 #endif
 }
 
-inline std::optional<std::string> Resolve(const std::string& hostname)
+inline auto Resolve(const std::string& hostname)
 {
     struct hostent* he;
     initialise();
     he = gethostbyname(hostname.c_str());
     uninitialise();
     if(he == nullptr)
-        return std::nullopt;
+        return std::optional<std::string>{};
     const char* adr = inet_ntoa(*((struct in_addr*) he->h_addr_list[0]));
     auto ip = std::make_optional(std::string(adr));
     return ip;

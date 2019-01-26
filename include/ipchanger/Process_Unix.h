@@ -1,12 +1,12 @@
 #ifndef UNIXPROCESS_HPP
 #define UNIXPROCESS_HPP
 
-#include "ipchanger/Client.h"
 #include <sys/ptrace.h>
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <string>
 #include <iostream>
+#include <vector>
 
 namespace ipchanger::system {
 
