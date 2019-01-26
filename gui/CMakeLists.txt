@@ -34,7 +34,7 @@ else()
     add_executable(${PROJECT_NAME} ${APP_SRCS})
     target_link_libraries(${PROJECT_NAME}
         Qt5::Widgets
-        Threads::Threads
+        Threads::Threads STATIC
         ${Boost_LIBRARIES}
     )
 endif()

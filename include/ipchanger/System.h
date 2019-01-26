@@ -41,21 +41,12 @@ inline void WriteFile(const fs::path& path, const std::vector<char>& buff)
 {
     fs::ofstream output{ path, std::ios::binary };
     output.write(buff.data(), buff.size());
-    output.close();
 }
 
 inline void WriteFileString(const fs::path& path, const std::string& buff)
 {
-    using clock = std::chrono::system_clock;
-    using ms = std::chrono::milliseconds;
-    const auto before = clock::now(); // Measure time
-
     fs::ofstream output{ path, std::ios::binary };
     output.write(buff.data(), buff.size());
-    output.close();
-
-    const auto duration = std::chrono::duration_cast<ms>(clock::now() - before);
-    std::cout << "Duration : " << duration.count() / 1000.0f << std::endl;
 }
 
 struct AsciiNum {

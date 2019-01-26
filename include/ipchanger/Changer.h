@@ -23,12 +23,6 @@ namespace fs = boost::filesystem;
 inline void ChangeIP(std::shared_ptr<std::string> ip_s, std::shared_ptr<unsigned int> port_s,
                      std::shared_ptr<fs::path> in_s,  std::shared_ptr<fs::path> out_s)
 {
-    /*
-        using clock = std::chrono::system_clock;
-        using ms = std::chrono::milliseconds;
-        const auto before = clock::now(); // Measure time
-    */
-
     auto ip = *ip_s.get();
     auto port = *port_s.get();
     auto in = *in_s.get();
@@ -66,13 +60,16 @@ inline void ChangeIP(std::shared_ptr<std::string> ip_s, std::shared_ptr<unsigned
             std::copy(std::begin(RSA_KEY), std::end(RSA_KEY), search);
     }
 
-    system::WriteFileString(out, buff);
-    fs::permissions(out, fs::owner_all); // Allow all permissions to be able to execute it
+    using clock = std::chrono::system_clock;
+    using ms = std::chrono::milliseconds;
+    const auto before = clock::now(); // Measure time
 
-    /*
-        const auto duration = std::chrono::duration_cast<ms>(clock::now() - before);
-        std::cout << "Duration : " << duration.count() / 1000.0f << std::endl;
-    */
+    system::WriteFileString(out, buff);
+
+    const auto duration = std::chrono::duration_cast<ms>(clock::now() - before);
+    std::cout << "Duration : " << duration.count() / 1000.0f << std::endl;
+
+    fs::permissions(out, fs::owner_all); // Allow all permissions to be able to execute it
 }
 
 inline void LaunchTemporary(std::shared_ptr<fs::path> path_s)
