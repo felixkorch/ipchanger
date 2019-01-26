@@ -1,6 +1,6 @@
 # Tibia IP-Changer
 
-Easy to use cross-platform ipchanger for Open Tibia with both GUI and Console interfaces.
+Easy to use cross-platform ipchanger for Open Tibia with both GUI and Console interfaces. Tested for versions up to 10.98.
 
 ### Build Instructions
 In root directory:
