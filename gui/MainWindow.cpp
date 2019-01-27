@@ -35,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->button_browse, SIGNAL (released()), this, SLOT (Browse()));
     connect(&this->launch_watcher, SIGNAL (finished()), this, SLOT (LaunchFinished()));
     connect(&this->save_watcher, SIGNAL (finished()), this, SLOT (SaveFinished()));
+
     this->setFixedSize(WINDOW_DIMENSIONS);
     this->statusBar()->setSizeGripEnabled(false);
     QWidget::setWindowTitle(TITLE);
@@ -53,8 +54,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->edit_ip->setPlaceholderText(DEFAULT_IP);
     ui->edit_port->setPlaceholderText(DEFAULT_PORT);
     ui->edit_path->setPlaceholderText(DEFAULT_PATH);
-    ui->progressBar->hide();
-    ui->progressBar->setRange(0, 0);
 }
 
 auto MainWindow::GetPort()
@@ -122,7 +121,6 @@ auto MainWindow::ReadFields()
 
 void MainWindow::LaunchFinished()
 {
-    ui->progressBar->hide();
     QtConcurrent::run([out{launch_watcher.future()}]{
         sys::ExecuteBinary(out);
         fs::remove(out);
@@ -131,7 +129,6 @@ void MainWindow::LaunchFinished()
 
 void MainWindow::SaveFinished()
 {
-    ui->progressBar->hide();
 }
 
 void MainWindow::Save()
@@ -149,12 +146,12 @@ void MainWindow::Save()
     if(file_name.isEmpty())
         return;
 
-    ui->progressBar->show();
     auto future = QtConcurrent::run([ip{c.ip}, port{c.port}, in{c.in}, out{file_name.toStdString()}] {
         auto buff = ipchanger::ChangeIP(ip, port, in);
         sys::WriteBinary(fs::path(out), buff.data(), buff.size());
     });
     this->save_watcher.setFuture(future);
+    LoadingDialog();
 }
 
 void MainWindow::Browse()
@@ -167,6 +164,18 @@ void MainWindow::Browse()
    ui->edit_path->setText(path_name);
 }
 
+void MainWindow::LoadingDialog()
+{
+    QProgressDialog dialog(nullptr, Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
+    dialog.setLabelText(QString("Working..."));
+    dialog.setCancelButton(nullptr);
+    dialog.setRange(0, 0);
+    dialog.setWindowModality(Qt::WindowModal);
+    QObject::connect(&launch_watcher, SIGNAL(finished()), &dialog, SLOT(reset()));
+    QObject::connect(&save_watcher, SIGNAL(finished()), &dialog, SLOT(reset()));
+    dialog.exec();
+}
+
 void MainWindow::Launch()
 {
     auto fields = ReadFields();
@@ -177,13 +186,13 @@ void MainWindow::Launch()
     auto unique_name = fs::unique_path(RAND);
     auto out = c.in.parent_path() / unique_name;
 
-    ui->progressBar->show();
     auto future = QtConcurrent::run([ip{c.ip}, port{c.port}, in{c.in}, out] {
         auto buff = ipchanger::ChangeIP(ip, port, in);
         sys::WriteBinary(out, buff.data(), buff.size(), sys::WINDOWS_HIDDEN_FILE);
         return out;
     });
     this->launch_watcher.setFuture(future);
+    LoadingDialog();
 }
 
 
