@@ -147,8 +147,8 @@ void MainWindow::Save()
         return;
 
     auto future = QtConcurrent::run([ip{c.ip}, port{c.port}, in{c.in}, out{file_name.toStdString()}] {
-        auto buff = ipchanger::ChangeIP(ip, port, in);
-        sys::WriteBinary(fs::path(out), buff.data(), buff.size());
+        ipchanger::Changer changer { ip, port, in };
+        sys::WriteBinary(fs::path(out), changer.Data(), changer.Size());
     });
     this->save_watcher.setFuture(future);
     LoadingDialog();
@@ -187,8 +187,8 @@ void MainWindow::Launch()
     auto out = c.in.parent_path() / unique_name;
 
     auto future = QtConcurrent::run([ip{c.ip}, port{c.port}, in{c.in}, out] {
-        auto buff = ipchanger::ChangeIP(ip, port, in);
-        sys::WriteBinary(out, buff.data(), buff.size(), sys::WINDOWS_HIDDEN_FILE);
+        ipchanger::Changer changer { ip, port, in };
+        sys::WriteBinary(out, changer.Data(), changer.Size(), sys::WINDOWS_HIDDEN_FILE);
         return out;
     });
     this->launch_watcher.setFuture(future);

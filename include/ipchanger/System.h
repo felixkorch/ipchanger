@@ -3,13 +3,8 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/process.hpp>
-#include <deque>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
 #include <sstream>
 #include <vector>
-#include <functional>
 #include <iostream>
 
 namespace ipchanger::system {
