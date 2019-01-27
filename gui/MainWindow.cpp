@@ -167,7 +167,7 @@ void MainWindow::Browse()
 void MainWindow::LoadingDialog()
 {
     QProgressDialog dialog(nullptr, Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
-    dialog.setLabelText(QString("Working..."));
+    dialog.setLabelText(QString("Patching..."));
     dialog.setCancelButton(nullptr);
     dialog.setRange(0, 0);
     dialog.setWindowModality(Qt::WindowModal);

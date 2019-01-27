@@ -6,7 +6,7 @@
 #include <boost/filesystem.hpp>
 #include <QProgressDialog>
 
-constexpr QSize WINDOW_DIMENSIONS(332, 312);
+constexpr QSize WINDOW_DIMENSIONS(332, 320);
 constexpr auto VERSION = "0.1.0";
 constexpr auto TITLE = "Tibia IP-Changer";
 
