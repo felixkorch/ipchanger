@@ -197,6 +197,7 @@ void FramelessWindow::on_minimizeButton_clicked() {
 void FramelessWindow::on_closeButton_clicked() { close(); }
 
 void FramelessWindow::on_windowTitlebar_doubleClicked() {
+    return;
   if (windowState().testFlag(Qt::WindowNoState)) {
     on_maximizeButton_clicked();
   } else if (windowState().testFlag(Qt::WindowFullScreen)) {
@@ -205,10 +206,12 @@ void FramelessWindow::on_windowTitlebar_doubleClicked() {
 }
 
 void FramelessWindow::mouseDoubleClickEvent(QMouseEvent *event) {
+    return;
   Q_UNUSED(event);
 }
 
 void FramelessWindow::checkBorderDragging(QMouseEvent *event) {
+    return;
   if (isMaximized()) {
     return;
   }
@@ -368,6 +371,7 @@ bool FramelessWindow::bottomBorderHit(const QPoint &pos) {
 }
 
 void FramelessWindow::mousePressEvent(QMouseEvent *event) {
+    return;
   if (isMaximized()) {
     return;
   }
@@ -407,6 +411,7 @@ void FramelessWindow::mousePressEvent(QMouseEvent *event) {
 }
 
 void FramelessWindow::mouseReleaseEvent(QMouseEvent *event) {
+    return;
   Q_UNUSED(event);
   if (isMaximized()) {
     return;
@@ -425,6 +430,7 @@ void FramelessWindow::mouseReleaseEvent(QMouseEvent *event) {
 }
 
 bool FramelessWindow::eventFilter(QObject *obj, QEvent *event) {
+    return false;
   if (isMaximized()) {
     return QWidget::eventFilter(obj, event);
   }
