@@ -147,7 +147,7 @@ void MainWindow::Save()
         return;
 
     auto future = QtConcurrent::run([ip{c.ip}, port{c.port}, in{c.in}, out{file_name.toStdString()}] {
-        ipchanger::Changer changer { ip, port, in };
+        ipchanger::Changer changer{ ip, port, in };
         sys::WriteBinary(fs::path(out), changer.Data(), changer.Size());
     });
     this->save_watcher.setFuture(future);
@@ -187,7 +187,7 @@ void MainWindow::Launch()
     auto out = c.in.parent_path() / unique_name;
 
     auto future = QtConcurrent::run([ip{c.ip}, port{c.port}, in{c.in}, out] {
-        ipchanger::Changer changer { ip, port, in };
+        ipchanger::Changer changer{ ip, port, in };
         sys::WriteBinary(out, changer.Data(), changer.Size(), sys::WINDOWS_HIDDEN_FILE);
         return out;
     });

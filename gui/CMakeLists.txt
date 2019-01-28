@@ -20,7 +20,12 @@ set(APP_SRCS
     MainWindow.cpp
     Main.cpp
     MainWindow.h
+    DarkStyle.cpp
+    framelesswindow/framelesswindow.cpp
+    framelesswindow/windowdragger.cpp
 )
+
+include_directories(framelesswindow)
 
 if(WIN32)
     add_executable(${PROJECT_NAME} WIN32 ${APP_SRCS})
