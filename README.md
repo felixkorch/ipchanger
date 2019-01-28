@@ -1,6 +1,6 @@
 # Tibia IP-Changer
 
-Easy to use cross-platform ipchanger for Open Tibia written in C++. Tested for versions up to 10.98.<br />
+Easy to use cross-platform IP-Changer for Open Tibia written in C++. Tested for versions up to 10.98.<br />
 Prebuilt binaries under releases
 
 ### Build Instructions
