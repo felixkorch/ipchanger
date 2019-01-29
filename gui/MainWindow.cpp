@@ -90,7 +90,7 @@ void MainWindow::Warning(const std::string& msg)
 void MainWindow::About()
 {
     QString ver = VERSION;
-    QString msg = "A Tibia IP-Changer for OT\nVersion: " + ver;
+    QString msg = "An IP-Changer for OT\nVersion: " + ver;
 
     QMessageBox::about(this, TITLE, msg);
 }

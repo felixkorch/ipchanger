@@ -22,7 +22,7 @@ private:
 
     static constexpr std::string_view p_old[]
         { "server1.tibia.com", "server2.tibia.com",
-          "tibia1.cipsoft.com", "tibia1.cipsoft.com" };
+          "tibia1.cipsoft.com", "tibia2.cipsoft.com" };
 
     static constexpr std::string_view p_new[]
         { "login0", "tibia0" };
@@ -43,18 +43,26 @@ private:
         }
         return true; // One or more matches
     }
+
+    void SearchAndReplace(std::string& in, unsigned int pattern, unsigned int replace)
+    {
+        for(unsigned int i = 0; i < in.size(); i++) {
+            if(*reinterpret_cast<unsigned int*>(&in[i]) == pattern)
+                *reinterpret_cast<unsigned int*>(&in[i]) = replace;
+        }
+    }
+
 public:
     Changer(const std::string& ip, unsigned int port, const fs::path& in)
         : buffer{ system::ReadFile<std::string>(in) }
     {
-        bool new_client = false;
+        SearchAndReplace(buffer, 7171, port);
 
+        bool new_client = false;
         for(auto p : p_new)
             new_client = SearchAndReplace(buffer, p, ip);
-
         if(!new_client)
             for(auto p : p_old) SearchAndReplace(buffer, p, ip);
-
         if(!SearchAndReplace(buffer, rsa1, RSA_KEY))
             SearchAndReplace(buffer, rsa2, RSA_KEY);
     }

@@ -7,7 +7,7 @@
 #include <QProgressDialog>
 
 constexpr QSize WINDOW_DIMENSIONS(360, 380);
-constexpr auto VERSION = "0.1.0";
+constexpr auto VERSION = "0.1.2";
 constexpr auto TITLE = "Tibia IP-Changer";
 
 namespace Ui {
