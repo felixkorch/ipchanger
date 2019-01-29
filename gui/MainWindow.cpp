@@ -121,7 +121,7 @@ auto MainWindow::ReadFields()
 
 void MainWindow::LaunchFinished()
 {
-    QtConcurrent::run([out{launch_watcher.future()}]{
+    QtConcurrent::run([out{ launch_watcher.future() }]{
         sys::ExecuteBinary(out);
         fs::remove(out);
     });
@@ -146,9 +146,10 @@ void MainWindow::Save()
     if(file_name.isEmpty())
         return;
 
-    auto future = QtConcurrent::run([ip{c.ip}, port{c.port}, in{c.in}, out{file_name.toStdString()}] {
+    auto future = QtConcurrent::run([ip{ c.ip }, port{ c.port }, in{ c.in }, out{ file_name.toStdString() }] {
         ipchanger::Changer changer{ ip, port, in };
-        sys::WriteBinary(fs::path(out), changer.Data(), changer.Size());
+        const std::string& buff = changer.Data();
+        sys::WriteBinary(fs::path(out), buff.data(), buff.size());
     });
     this->save_watcher.setFuture(future);
     LoadingDialog();
@@ -186,9 +187,10 @@ void MainWindow::Launch()
     auto unique_name = fs::unique_path(RAND);
     auto out = c.in.parent_path() / unique_name;
 
-    auto future = QtConcurrent::run([ip{c.ip}, port{c.port}, in{c.in}, out] {
+    auto future = QtConcurrent::run([ip{ c.ip }, port{ c.port }, in{ c.in }, out] {
         ipchanger::Changer changer{ ip, port, in };
-        sys::WriteBinary(out, changer.Data(), changer.Size(), sys::WINDOWS_HIDDEN_FILE);
+        const std::string& buff = changer.Data();
+        sys::WriteBinary(out, buff.data(), buff.size(), sys::WINDOWS_HIDDEN_FILE);
         return out;
     });
     this->launch_watcher.setFuture(future);

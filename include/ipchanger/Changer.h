@@ -57,25 +57,18 @@ public:
         : buffer{ system::ReadFile<std::string>(in) }
     {
         SearchAndReplace(buffer, 7171, port);
-
         bool new_client = false;
-        for(auto p : p_new)
-            new_client = SearchAndReplace(buffer, p, ip);
-        if(!new_client)
-            for(auto p : p_old) SearchAndReplace(buffer, p, ip);
+        for(auto p : p_new) new_client = SearchAndReplace(buffer, p, ip);
+        if(!new_client) for(auto p : p_old) SearchAndReplace(buffer, p, ip);
         if(!SearchAndReplace(buffer, rsa1, RSA_KEY))
             SearchAndReplace(buffer, rsa2, RSA_KEY);
     }
 
-    const char* Data() const
+    const std::string& Data() const
     {
-        return buffer.data();
+        return buffer;
     }
 
-    std::size_t Size() const
-    {
-        return buffer.size();
-    }
 };
 
 } // namespace
