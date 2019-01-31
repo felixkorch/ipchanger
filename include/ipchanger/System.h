@@ -20,6 +20,7 @@ constexpr OS current_os = OS::Windows;
 #include <iostream>
 #include <random>
 #include <limits>
+#include <fstream>
 
 namespace ipchanger::system {
 
@@ -76,9 +77,9 @@ inline void WriteBinary(const fs::path& path, const char* buff, std::size_t leng
     WriteFile(handl, buff, length, nullptr, nullptr);
     CloseHandle(handl);
 #else
-    fs::ofstream output{ path, std::ios::binary };
+    std::ofstream output{ path, std::ios::binary };
     output.write(buff, length);
-    fs::permissions(path, fs::owner_all); // Allow all permissions to be able to execute it
+    fs::permissions(path, fs::perms::owner_all); // Allow all permissions to be able to execute it
 #endif
 }
 

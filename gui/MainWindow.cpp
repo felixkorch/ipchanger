@@ -150,7 +150,8 @@ void MainWindow::Save()
     if(file_name.isEmpty())
         return;
 
-    auto future = QtConcurrent::run([ip{ c.ip }, port{ c.port }, in{ c.in }, out{ file_name.toStdString() }] {
+    auto temp = file_name.toLocal8Bit(); // Required on Windows (convert to UTF-8)
+    auto future = QtConcurrent::run([ip{ c.ip }, port{ c.port }, in{ c.in }, out{ temp.toStdString() }] {
         ipchanger::Changer changer{ ip, port, in };
         const std::string& buff = changer.Data();
         sys::WriteBinary(fs::path(out), buff.data(), buff.size());

@@ -2,7 +2,6 @@
 #define CHANGER_H
 
 #include "ipchanger/System.h"
-#include <boost/filesystem.hpp>
 #include <string>
 #include <algorithm>
 

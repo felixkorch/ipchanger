@@ -29,11 +29,13 @@ if(WIN32)
         Qt5::Widgets
         Threads::Threads
         ws2_32
+        stdc++fs
     )
 else()
     add_executable(${PROJECT_NAME} ${APP_SRCS})
     target_link_libraries(${PROJECT_NAME}
         Qt5::Widgets
         Threads::Threads
+        stdc++fs
     )
 endif()
