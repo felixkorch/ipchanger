@@ -3,11 +3,11 @@
 
 #include <QMainWindow>
 #include <QFutureWatcher>
-#include <boost/filesystem.hpp>
 #include <QProgressDialog>
+#include <filesystem>
 
 constexpr QSize WINDOW_DIMENSIONS(360, 380);
-constexpr auto VERSION = "0.1.2";
+constexpr auto VERSION = "0.1.3";
 constexpr auto TITLE = "Tibia IP-Changer";
 
 namespace Ui {
@@ -31,7 +31,7 @@ private slots:
 private:
     Ui::MainWindow* ui;
     QFutureWatcher<void> save_watcher;
-    QFutureWatcher<boost::filesystem::path> launch_watcher;
+    QFutureWatcher<std::filesystem::path> launch_watcher;
     void LoadingDialog();
     auto ReadFields();
     void Warning(const std::string& msg);

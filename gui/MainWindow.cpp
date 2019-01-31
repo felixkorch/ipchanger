@@ -1,7 +1,7 @@
+#include "ui_MainWindow.h"
 #include "ipchanger/Changer.h"
 #include "ipchanger/Resolver.h"
 #include "MainWindow.h"
-#include "ui_MainWindow.h"
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QDir>
@@ -9,10 +9,10 @@
 #include <QtConcurrent/QtConcurrent>
 
 namespace sys = ipchanger::system;
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
-static auto constexpr RAND = (sys::current_os == sys::OS::Windows) ? ".%%%%_%%%%_%%%%_%%%%.exe" : ".%%%%_%%%%_%%%%_%%%%";
-static auto constexpr TIBIA = (sys::current_os == sys::OS::Windows) ? "Tibia.exe" : "Tibia";
+static auto constexpr RAND = (current_os == OS::Windows) ? ".%%%%_%%%%_%%%%_%%%%.exe" : ".%%%%_%%%%_%%%%_%%%%";
+static auto constexpr TIBIA = (current_os == OS::Windows) ? "Tibia.exe" : "Tibia";
 static auto constexpr DEFAULT_IP = "127.0.0.1";
 static auto constexpr DEFAULT_PORT = "7171";
 static auto constexpr DEFAULT_PATH = "path/to/tibia";
@@ -68,14 +68,18 @@ auto MainWindow::GetIP()
     QString ip { ui->edit_ip->text() };
     if(ip.isEmpty())
         return std::optional<std::string>{};
-    return std::make_optional(ip.toStdString());
+
+	auto temp = ip.toLocal8Bit(); // Required on Windows (convert to UTF-8)
+	return std::make_optional(std::string(temp));
 }
 auto MainWindow::GetPath()
 {
     QString path{ ui->edit_path->text() };
     if(path.isEmpty())
         return std::optional<fs::path>{};
-    return std::make_optional(fs::path{ path.toStdString() });
+
+	auto temp = path.toLocal8Bit(); // Required on Windows (convert to UTF-8)
+    return std::make_optional(fs::path{ std::string(temp) });
 }
 
 void MainWindow::Warning(const std::string& msg)
@@ -184,8 +188,7 @@ void MainWindow::Launch()
         return;
 
     auto c = fields.value();
-    auto unique_name = fs::unique_path(RAND);
-    auto out = c.in.parent_path() / unique_name;
+	fs::path out = sys::TempName(RAND, c.in.parent_path());
 
     auto future = QtConcurrent::run([ip{ c.ip }, port{ c.port }, in{ c.in }, out] {
         ipchanger::Changer changer{ ip, port, in };

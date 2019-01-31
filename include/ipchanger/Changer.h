@@ -8,7 +8,7 @@
 
 namespace ipchanger {
 
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
 class Changer {
 private:
