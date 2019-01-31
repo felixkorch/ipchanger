@@ -63,8 +63,8 @@ FramelessWindow::FramelessWindow(QWidget *parent)
 FramelessWindow::~FramelessWindow() { delete ui; }
 
 void FramelessWindow::on_restoreButton_clicked() {
+	return;
   ui->restoreButton->setVisible(false);
-
   ui->maximizeButton->setVisible(true);
   setWindowState(Qt::WindowNoState);
   // on MacOS this hack makes sure the
@@ -74,6 +74,7 @@ void FramelessWindow::on_restoreButton_clicked() {
 }
 
 void FramelessWindow::on_maximizeButton_clicked() {
+	return;
   ui->restoreButton->setVisible(true);
   ui->maximizeButton->setVisible(false);
   this->setWindowState(Qt::WindowMaximized);
