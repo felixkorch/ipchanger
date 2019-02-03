@@ -72,7 +72,7 @@ fs::path TempName(const std::string_view& temp, const fs::path& path = fs::path(
 inline void WriteBinary(const fs::path& path, const char* buff, std::size_t length, unsigned long options = WINDOWS_NORMAL_FILE)
 {
 #ifdef _WIN32
-    HANDLE handl = CreateFile(path.c_str(), GENERIC_WRITE, 0, nullptr,
+    HANDLE handl = CreateFile(path.string().c_str(), GENERIC_WRITE, 0, nullptr,
     CREATE_ALWAYS, options, nullptr);
     WriteFile(handl, buff, length, nullptr, nullptr);
     CloseHandle(handl);

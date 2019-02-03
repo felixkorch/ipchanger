@@ -3,8 +3,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 project(IPChanger)
 
-set(IPCHANGER_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
-set(IPCHANGER_BINARY_DIR "${CMAKE_SOURCE_DIR}/bin")
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(IPCHANGER_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 
 add_subdirectory(gui)

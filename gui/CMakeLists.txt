@@ -1,10 +1,11 @@
-project(IPChanger)
-set(CMAKE_CXX_STANDARD 17)
-
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+if(MSVC)
+    ADD_DEFINITIONS("/EHsc")
+else()
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+endif(MSVC)
 
 find_package(Qt5Widgets CONFIG REQUIRED)
 find_package(Threads REQUIRED)
@@ -29,7 +30,6 @@ if(WIN32)
         Qt5::Widgets
         Threads::Threads
         ws2_32
-        stdc++fs
     )
 else()
     add_executable(${PROJECT_NAME} ${APP_SRCS})
@@ -39,3 +39,9 @@ else()
         stdc++fs
     )
 endif()
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+ 
+install (TARGETS ${PROJECT_NAME}
+         RUNTIME DESTINATION ${PROJECT_SOURCE_DIR}/_install)
