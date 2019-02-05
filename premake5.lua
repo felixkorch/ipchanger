@@ -14,37 +14,36 @@ workspace "IPChanger"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 project "IPChanger"
-	location "ipchanger"
+
+	local dir = "ipchanger"
+
+	location (dir)
 	kind "StaticLib"
 	staticruntime "Off"
 	language "C++"
 	cppdialect "C++17"
 
-	pchheader "pch.h"
-	pchsource "ipchanger/src/pch.cpp"
+	pchheader (dir .. "/src/pch.h")
+	pchsource (dir .. "/src/pch.cpp")
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
-		"%{prj.name}/src/**.cpp",
-		"%{prj.name}/src/**.h"
+		(dir .. "/src/**.cpp"),
+		(dir .. "/src/**.h")
 	}
 
 	includedirs
 	{
-		"%{prj.name}/src",
-		"%{prj.name}/src/**"
+		(dir .. "/src"),
+		(dir .. "/src/**")
 	}
 
 	filter "system:windows"
 		systemversion "latest"
 		sysincludedirs { "C:/local/include/*" }
-		--postbuildcommands
-		--{
-		--	("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/IPChanger-GUI/\"")
-		--}
 		links { "ws2_32" }
 
 	filter "system:linux"
@@ -106,6 +105,10 @@ project "IPChanger-GUI"
 
 	filter "system:linux"
 		links { "stdc++fs" }
+		qtbinpath "/usr/lib/qt5/bin"
+		qtlibpath "/usr/lib/x86_64-linux-gnu"
+		qtincludepath "/usr/include/x86_64-linux-gnu/qt5"
+		buildoptions { "-fPIC" }
 
 	filter "system:macosx"
 		links { "stdc++fs" }
