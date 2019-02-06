@@ -54,4 +54,4 @@ namespace ipchanger {
 			SearchAndReplace(buffer, rsa2, RSA_KEY);
 	}
 
-} // namespace
+}

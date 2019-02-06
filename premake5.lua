@@ -23,7 +23,7 @@ project "IPChanger"
 	language "C++"
 	cppdialect "C++17"
 
-	pchheader (dir .. "/src/pch.h")
+	pchheader "pch.h"
 	pchsource (dir .. "/src/pch.cpp")
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
@@ -45,12 +45,15 @@ project "IPChanger"
 		systemversion "latest"
 		sysincludedirs { "C:/local/include/*" }
 		links { "ws2_32" }
+		excludes { dir .. "/src/ipchanger/system/platform/linux/**.cpp" }
 
 	filter "system:linux"
 		links { "stdc++fs" }
+		excludes { dir .. "/src/ipchanger/system/platform/windows/**.cpp" }
 
 	filter "system:macosx"
 		links { "stdc++fs" }
+		excludes { dir .. "/src/ipchanger/system/platform/windows/**.cpp" }
 
 	filter "configurations:Debug"
 		defines { "DEBUG" }

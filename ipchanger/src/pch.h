@@ -19,6 +19,7 @@ constexpr OS current_os = OS::Windows;
 #endif
 
 #ifdef _WIN32
+#define NOMINMAX // Required to avoid conflicts on Windows
 #include <windows.h>
 #include "winsock.h"
 #include <fileapi.h>

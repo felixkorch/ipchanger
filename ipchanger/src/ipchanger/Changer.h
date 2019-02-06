@@ -1,6 +1,7 @@
 ﻿#pragma once
 #ifndef CHANGER_H
 #define CHANGER_H
+
 #include "pch.h"
 #include "ipchanger/system/System.h"
 
@@ -23,6 +24,6 @@ namespace ipchanger {
 
 	};
 
-} // namespace
+}
 
 #endif // CHANGER_H

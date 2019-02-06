@@ -20,6 +20,6 @@ namespace ipchanger::system {
 	void WriteBinary(const std::filesystem::path& path, const char* buff, std::size_t length, unsigned long options = WINDOWS_NORMAL_FILE);
 	void ExecuteBinary(const std::filesystem::path& path);
 
-} // namespace
+}
 
 #endif // SYSTEM_H
