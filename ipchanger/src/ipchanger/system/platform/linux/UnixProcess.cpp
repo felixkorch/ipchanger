@@ -55,14 +55,14 @@ namespace ipchanger::system {
 		return 1;
 	}
 
-	void Process::WriteMemory(void* addr, std::size_t* buff, std::size_t length)
+	void Process::WriteMemory(std::uintptr_t addr, std::size_t* buff, std::size_t length)
 	{
 		for (std::size_t i = 0; i < length; i++) {
 			ptrace(PTRACE_POKEDATA, _pid, addr + i, buff[i]);
 		}
 	}
 
-	void ReadMemory(void* addr, void* buff, std::size_t length)
+	void Process::ReadMemory(std::uintptr_t addr, std::size_t* buff, std::size_t length)
 	{
 		for (std::size_t i = 0; i < length; i++) {
 			buff[i] = ptrace(PTRACE_PEEKDATA, _pid, addr + i, 0);

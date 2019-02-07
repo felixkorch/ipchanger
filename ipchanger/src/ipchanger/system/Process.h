@@ -8,6 +8,9 @@ namespace ipchanger::system {
 	private:
 		void* _handle;
 		int _pid;
+	private:
+		void ReadMemory(std::uintptr_t addr, std::size_t* buff, std::size_t length);
+		void WriteMemory(std::uintptr_t addr, std::size_t* buff, std::size_t length);
 	public:
 		Process(int pid);
 		Process(const std::string& process_name);
@@ -16,31 +19,27 @@ namespace ipchanger::system {
 		int GetPid() const;
 		int Attach(); // Usually requires administrator rights
 		int Detach();
-		void ReadMemory(void* addr, void* buff, std::size_t length);
-		void WriteMemory(void* addr, std::size_t* buff, std::size_t length);
 
-		template <class T>
-		int WriteToAddress(std::uintptr_t addr, const T* buff, std::size_t length) const
+		int WriteToAddress(std::uintptr_t addr, std::size_t* buff, std::size_t length)
 		{
-			WriteMemory(addr, reinterpret_cast<void*>(buff), length);
+			WriteMemory(addr, buff, length);
 			return 1;
 		}
 
-		template <class T>
-		int ReadFromAddress(std::uintptr_t addr, T* buff, std::size_t length) const
+		int ReadFromAddress(std::uintptr_t addr, std::size_t* buff, std::size_t length)
 		{
-			ReadMemory(addr, reinterpret_cast<void*>(buff), length);
+			ReadMemory(addr, buff, length);
 			return 0;
 		}
 
-		template <class T>
-		std::vector<T> ReadFromAddress(std::uintptr_t addr, std::size_t length) const
+		std::vector<char> ReadFromAddress(std::uintptr_t addr, std::size_t length)
 		{
-			std::vector<T> buff(length);
-			ReadMemory(reinterpret_cast<const void*>(addr), reinterpret_cast<void*>(buff.data()), length);
+			std::vector<char> buff(length);
+			ReadMemory(addr, (std::size_t*)buff.data(), length);
 			return buff;
 		}
 
+		/* TODO
 		template <class T>
 		void PrintMemory(std::uintptr_t addr, std::size_t size = 1)
 		{
@@ -52,7 +51,7 @@ namespace ipchanger::system {
 			out << std::endl;
 
 			std::cout << out.str();
-		}
+		} */
 
 	};
 

@@ -68,7 +68,7 @@ namespace ipchanger::system {
 		return 1;
 	}
 
-	void Process::WriteMemory(void* addr, std::size_t* buff, std::size_t length)
+	void WriteMemory(std::uintptr_t addr, std::size_t* buff, std::size_t length)
 	{
 		if (!_handle) {
 			std::cout << "Proccess must be attached." << std::endl;
@@ -76,17 +76,17 @@ namespace ipchanger::system {
 		}
 
 		SIZE_T written_bytes;
-		WriteProcessMemory(_handle, addr, buff, length, &written_bytes);
+		WriteProcessMemory(_handle, (void*)addr, (void*)buff, length, &written_bytes);
 	}
 
-	void Process::ReadMemory(void* addr, void* buff, std::size_t length)
+	void ReadMemory(std::uintptr_t addr, std::size_t* buff, std::size_t length)
 	{
 		if (!_handle) {
 			std::cout << "Proccess must be attached." << std::endl;
 			return;
 		}
 		SIZE_T read_bytes;
-		ReadProcessMemory(_handle, addr, buff, length, &read_bytes);
+		ReadProcessMemory(_handle, (void*)addr, (void*)buff, length, &read_bytes);
 	}
 
 }
