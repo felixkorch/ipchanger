@@ -49,7 +49,7 @@ namespace ipchanger::system {
 		return _pid;
 	}
 
-	int Process::Attach()// Tries to attach to a process, usually requires administrator rights
+	int Process::Attach() // Tries to attach to a process, usually requires administrator rights
 	{
 		DWORD access =
 			PROCESS_VM_READ |

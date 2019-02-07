@@ -124,3 +124,52 @@ project "IPChanger-GUI"
 		defines { "NDEBUG" }
 		runtime "Release"
 		optimize "On"
+
+project "Sandbox"
+	location "sandbox"
+	kind "ConsoleApp"
+	staticruntime "Off"
+	language "C++"
+	cppdialect "C++17"
+
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+	files
+	{
+		"sandbox/src/**.cpp",
+		"sandbox/src/**.h"
+	}
+
+	includedirs
+	{
+		"sandbox/src",
+		"sandbox/src/**",
+		"ipchanger/src/",
+		"ipchanger/src/**"
+	}
+
+	links
+	{
+		"IPChanger"
+	}
+
+	filter "system:windows"
+		systemversion "latest"
+		sysincludedirs { "C:/local/include/*" }
+		links { "ws2_32" }
+
+	filter "system:linux"
+		links { "stdc++fs" }
+
+	filter "system:macosx"
+		links { "stdc++fs" }
+
+	filter "configurations:Debug"
+		defines { "DEBUG" }
+		symbols "On"
+
+	filter "configurations:Release"
+		defines { "NDEBUG" }
+		runtime "Release"
+		optimize "On"
