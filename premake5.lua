@@ -162,6 +162,7 @@ project "Sandbox"
 
 	filter "system:not windows"
 		links { "stdc++fs" }
+		targetname "sandbox"
 
 	filter "configurations:Debug"
 		defines { "DEBUG" }
