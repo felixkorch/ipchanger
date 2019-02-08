@@ -3,7 +3,7 @@ local qt = premake.extensions.qt
 
 workspace "IPChanger"
 	architecture "x64"
-	startproject "IPChanger-GUI"
+	startproject "Gui"
 
 	configurations
 	{
@@ -43,15 +43,11 @@ project "IPChanger"
 
 	filter "system:windows"
 		systemversion "latest"
-		sysincludedirs { "C:/local/include/*" }
+		sysincludedirs { "C:/local/include/*", "C:/*" }
 		links { "ws2_32" }
 		excludes { dir .. "/src/ipchanger/system/platform/linux/**.cpp" }
 
-	filter "system:linux"
-		links { "stdc++fs" }
-		excludes { dir .. "/src/ipchanger/system/platform/windows/**.cpp" }
-
-	filter "system:macosx"
+	filter "system:not windows"
 		links { "stdc++fs" }
 		excludes { dir .. "/src/ipchanger/system/platform/windows/**.cpp" }
 
@@ -64,8 +60,11 @@ project "IPChanger"
 		optimize "On"
 
 
-project "IPChanger-GUI"
-	location "gui"
+project "Gui"
+
+	local dir = "gui"
+
+	location (dir)
 	kind "WindowedApp"
 	staticruntime "Off"
 	language "C++"
@@ -81,16 +80,16 @@ project "IPChanger-GUI"
 
 	files
 	{
-		"gui/src/**.cpp",
-		"gui/src/**.h",
-		"gui/src/**.ui",
-		"gui/src/**.qrc"
+		(dir .. "/src/**.cpp"),
+		(dir .. "/src/**.h"),
+		(dir .. "/src/**.ui"),
+		(dir .. "/src/**.qrc")
 	}
 
 	includedirs
 	{
-		"gui/src",
-		"gui/src/**",
+		(dir .. "/src"),
+		(dir .. "/src/**"),
 		"ipchanger/src/",
 		"ipchanger/src/**"
 	}
@@ -102,19 +101,18 @@ project "IPChanger-GUI"
 
 	filter "system:windows"
 		systemversion "latest"
-		sysincludedirs { "C:/local/include/*" }
+		sysincludedirs { "C:/local/include/*", "C:/*" }
 		qtpath "C:/Qt/5.12.0/msvc2017_64"
 		links { "ws2_32" }
+		targetname "IPChanger"
 
-	filter "system:linux"
+	filter "system:not windows"
 		links { "stdc++fs" }
 		qtbinpath "/usr/lib/qt5/bin"
 		qtlibpath "/usr/lib/x86_64-linux-gnu"
 		qtincludepath "/usr/include/x86_64-linux-gnu/qt5"
 		buildoptions { "-fPIC" }
-
-	filter "system:macosx"
-		links { "stdc++fs" }
+		targetname "ipchanger"
 
 	filter "configurations:Debug"
 		defines { "DEBUG" }
@@ -126,7 +124,10 @@ project "IPChanger-GUI"
 		optimize "On"
 
 project "Sandbox"
-	location "sandbox"
+
+	local dir = "sandbox"
+
+	location (dir)
 	kind "ConsoleApp"
 	staticruntime "Off"
 	language "C++"
@@ -137,14 +138,14 @@ project "Sandbox"
 
 	files
 	{
-		"sandbox/src/**.cpp",
-		"sandbox/src/**.h"
+		(dir .. "/src/**.cpp"),
+		(dir .. "/src/**.h")
 	}
 
 	includedirs
 	{
-		"sandbox/src",
-		"sandbox/src/**",
+		(dir .. "/src"),
+		(dir .. "/src/**"),
 		"ipchanger/src/",
 		"ipchanger/src/**"
 	}
@@ -156,13 +157,10 @@ project "Sandbox"
 
 	filter "system:windows"
 		systemversion "latest"
-		sysincludedirs { "C:/local/include/*" }
+		sysincludedirs { "C:/local/include/*", "C:/*" }
 		links { "ws2_32" }
 
-	filter "system:linux"
-		links { "stdc++fs" }
-
-	filter "system:macosx"
+	filter "system:not windows"
 		links { "stdc++fs" }
 
 	filter "configurations:Debug"
