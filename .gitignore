@@ -2,4 +2,6 @@ build/
 build-*/
 CMakeLists.txt.user
 *.user
-CMakeLists.txt*
+.*/
+bin/
+bin-int/

@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Process.h"
+#include "ipchanger/system/Process.h"
 
 namespace ipchanger::system {
 
@@ -22,14 +22,13 @@ namespace ipchanger::system {
 
 		HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
 
-		std::wstring widestr = std::wstring(process_name.begin(), process_name.end());
-		const wchar_t* process = widestr.c_str();
+		const char* proc = process_name.c_str();
 
 		if (Process32First(snapshot, &entry) == TRUE)
 		{
 			while (Process32Next(snapshot, &entry) == TRUE)
 			{
-				if (lstrcmpi(entry.szExeFile, widestr.c_str()) == 0)
+				if (lstrcmpi(entry.szExeFile, proc) == 0)
 				{
 					HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, entry.th32ProcessID);
 					int actualProcId = GetProcessId(hProcess);
