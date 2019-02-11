@@ -12,8 +12,8 @@ make
 ```
 
 ### Required libraries
-Qt5Widgets
-Qt5Gui
+Qt5Widgets<br />
+Qt5Gui<br />
 Qt5Core
 
 ```
