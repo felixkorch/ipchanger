@@ -42,6 +42,7 @@ project "IPChanger"
 	}
 
 	filter "system:windows"
+		characterset "MBCS"
 		systemversion "latest"
 		sysincludedirs { "C:/local/include/*", "C:/*" }
 		links { "ws2_32" }
