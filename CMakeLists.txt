@@ -8,4 +8,3 @@ endif()
 
 add_subdirectory(ipchanger)
 add_subdirectory(gui)
-add_subdirectory(sandbox)

@@ -9,5 +9,4 @@ IPChanger/
 *.filters
 *.sln
 *.vcxproj
-bin/Release-linux-x86_64/Sandbox/
-bin/Release-windows-x86_64/Sandbox/
+sandbox/
