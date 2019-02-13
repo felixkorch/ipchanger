@@ -5,7 +5,6 @@ IPChanger/
 bin/Release-linux-x86_64/Sandbox/
 bin/Release-windows-x86_64/Sandbox/
 
-
 CMakeLists.txt.user
 *.user
 .*/
@@ -13,5 +12,3 @@ CMakeLists.txt.user
 *.filters
 *.sln
 *.vcxproj
-*.bat
-*.lua
