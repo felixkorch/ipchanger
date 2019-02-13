@@ -1,9 +1,11 @@
 build/
 build-*/
 bin-int/
-IPChanger/
 bin/Release-linux-x86_64/Sandbox/
 bin/Release-windows-x86_64/Sandbox/
+bin/Release-linux-x86_64/IPChanger/
+bin/Release-windows-x86_64/IPChanger/
+
 
 CMakeLists.txt.user
 *.user
