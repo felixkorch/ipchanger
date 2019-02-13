@@ -6,7 +6,7 @@ Prebuilt binaries under bin/
 ### Build Instructions for Premake
 
 #### Windows
-Edit paths.lua to set the directory of your Qt-installation.
+Edit paths.lua to set the directory of your Qt-installation.<br />
 Doubleclick Generate.bat
 
 #### Linux/macOS
