@@ -2,8 +2,8 @@
 #ifndef CHANGER_H
 #define CHANGER_H
 
-#include "pch.h"
-#include "ipchanger/system/System.h"
+#include "ippch.h"
+#include "System.h"
 
 namespace ipchanger {
 

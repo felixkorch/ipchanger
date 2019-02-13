@@ -1,5 +1,5 @@
-#include "pch.h"
-#include "ipchanger/Changer.h"
+#include "ippch.h"
+#include "Changer.h"
 
 static constexpr std::string_view RSA_KEY{
 				"10912013296739942927886096050899554152823750290279"

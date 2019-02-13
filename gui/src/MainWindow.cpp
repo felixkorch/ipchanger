@@ -1,4 +1,4 @@
-#include <IPChanger.h>
+#include <Changer.h>
 #include "ui_MainWindow.h"
 #include "MainWindow.h"
 #include <QMessageBox>
