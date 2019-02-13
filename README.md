@@ -3,12 +3,16 @@
 A cross-platform IP-Changer for Open Tibia written in C++. Tested for versions up to 10.98.<br />
 Prebuilt binaries under bin/
 
-### Build Instructions for CMake
-In root directory:
+### Build Instructions for Premake
+
+#### Windows
+1. Edit paths.lua to set the directory of your Qt-installation.<br />
+2. Run Generate.bat
+
+#### Linux/macOS
+Edit paths.lua to set the lib/bin/include directories for your Qt-installation, then
 ```
-mkdir build && cd build
-cmake ..
-make
+premake5 gmake
 ```
 
 ### Required libraries
