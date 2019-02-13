@@ -7,7 +7,7 @@ Prebuilt binaries under bin/
 
 #### Windows
 Edit paths.lua to set the directory of your Qt-installation.<br />
-Doubleclick Generate.bat
+Run Generate.bat
 
 #### Linux/macOS
 Edit paths.lua to set the lib/bin/include directories for your Qt-installation.
